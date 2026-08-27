@@ -437,3 +437,752 @@ Feedback to Topic Recommendation System
 - 发布结果是否可以反向优化选题评分机制
 
 该 Feedback Loop 暂列为 Future Improvement，避免扩大第一版 MVP Scope。
+## 1. Trigger
+
+The Legal Content Automation System contains multiple workflows with different trigger mechanisms.
+
+The MVP primarily uses scheduled batch processing combined with human approval and workflow dependencies.
+
+Trigger analysis should distinguish between:
+
+**Trigger → Upstream Dependency → Precondition → Execution Rule → Execution**
+
+---
+
+### Trigger A — Social Media Content Collection
+
+**Workflow:**
+
+Search Keywords → Collect New Social Media Posts
+
+**Trigger Type:**
+
+Schedule Trigger
+
+**Trigger Condition:**
+
+Monday to Saturday at 10:00.
+
+**Upstream Dependency:**
+
+Official Seed Keyword Library.
+
+**Precondition:**
+
+At least one valid Active seed keyword must be available for the current collection cycle.
+
+If no valid seed keyword is available, the collection workflow should be skipped and the reason recorded.
+
+**Execution Rules:**
+
+- Rotate official seed keywords based on predefined legal topics.
+- Process a maximum of 4 official seed keywords per collection cycle.
+- Only use keywords currently eligible for collection.
+- Collect new social media posts associated with the selected keywords.
+- Avoid duplicate collection of previously stored posts where possible.
+
+**Execution Mode:**
+
+Scheduled Batch Processing.
+
+**Purpose:**
+
+Continuously collect real social media content related to the lawyer's business areas and build the data foundation for subsequent analysis.
+
+**Important Distinction:**
+
+```text
+Monday–Saturday 10:00
+→ Trigger
+
+Official Seed Keyword Library
+→ Upstream Dependency
+
+At least one valid keyword exists
+→ Precondition
+
+Maximum 4 seed keywords per run
+→ Execution Rule
+```
+
+---
+
+### Trigger B — Priority Post Tracking
+
+**Workflow:**
+
+Re-fetch engagement data for priority posts.
+
+**Trigger Type:**
+
+Schedule Trigger
+
+**Trigger Condition:**
+
+Every Sunday at 10:00.
+
+**Upstream Dependency:**
+
+Priority Post Pool created from previously collected social media posts.
+
+**Precondition:**
+
+The Priority Post Pool must contain posts requiring follow-up tracking.
+
+If no eligible posts exist, the scheduled tracking workflow should be skipped and the reason recorded.
+
+**Eligibility Rule:**
+
+Posts with initial engagement greater than 500 enter the Priority Post Pool.
+
+Current engagement calculation:
+
+```text
+Engagement = Likes + Saves + Comments
+```
+
+Current threshold:
+
+```text
+Engagement > 500
+→ Priority Post
+```
+
+**Execution Rules:**
+
+- Re-fetch the latest engagement data for eligible priority posts.
+- Store the new engagement data without overwriting historical observations.
+- Preserve the Post ID so different observation periods can be compared.
+- Avoid duplicate tracking records for the same observation period.
+
+**Execution Mode:**
+
+Weekly Batch Processing.
+
+**Purpose:**
+
+Create historical engagement data that can later be used to evaluate post and topic growth trends.
+
+**Important Distinction:**
+
+`Engagement > 500` is not the Trigger.
+
+It is an eligibility / decision rule that determines whether a post enters the Priority Post Pool.
+
+```text
+Post Collection
+↓
+Calculate Engagement
+↓
+Engagement > 500?
+↓
+YES
+↓
+Priority Post Pool
+↓
+Wait
+↓
+Sunday 10:00
+↓
+Priority Post Tracking
+```
+
+---
+
+### Trigger C — AI Content & Comment Analysis
+
+**Workflow:**
+
+Perform deeper AI analysis on selected posts and their discussion content.
+
+**Trigger Type:**
+
+Manual Trigger / Human Approval.
+
+**Trigger Condition:**
+
+Candidate posts are presented to the lawyer.
+
+The lawyer confirms that a post is worth further analysis.
+
+**Upstream Dependencies:**
+
+- Social Media Content Collection
+- Candidate Post Data
+- Initial engagement screening results
+
+**Precondition:**
+
+The candidate post must:
+
+- contain sufficient valid content for analysis;
+- have been reviewed and approved by the lawyer;
+- not already have a valid completed analysis for the same analysis version.
+
+**Execution Rules:**
+
+After lawyer approval, the system analyzes relevant information such as:
+
+- Post Content
+- Core Topic
+- User Problem
+- Legal Issue
+- Key Discussion Points
+- Comment Discussion
+- User Expressions
+
+The exact structured fields will be defined later during Input and Process Analysis.
+
+**Execution Mode:**
+
+Human-in-the-loop / Event-driven Analysis.
+
+**Purpose:**
+
+Use lawyer approval as a quality gate before spending additional AI processing resources on deeper content analysis.
+
+**Workflow:**
+
+```text
+Candidate Post
+↓
+Lawyer Review
+↓
+Approved?
+├── No → Stop / Ignore
+└── Yes
+      ↓
+AI Content & Comment Analysis
+      ↓
+Analyzed Post & Comment Library
+```
+
+---
+
+### Trigger D — Long-tail Keyword Discovery
+
+**Workflow:**
+
+Discover long-tail expressions from previously analyzed social media content.
+
+**Trigger Type:**
+
+Schedule Trigger.
+
+**Trigger Condition:**
+
+Every Sunday at 10:30.
+
+**Upstream Dependency:**
+
+Task C — AI Content & Comment Analysis.
+
+The workflow depends on the Analyzed Post & Comment Library produced from previously approved and analyzed posts.
+
+**Precondition:**
+
+The Analyzed Post & Comment Library must contain valid analyzed content from the current analysis period.
+
+If no valid analyzed content exists, the scheduled workflow should be skipped and the reason recorded.
+
+**Execution Rules:**
+
+Analyze real user language appearing in:
+
+- Post titles
+- Post content
+- Comments
+- Existing tags
+- Repeated user expressions
+- Emerging topic expressions
+
+Potential long-tail keywords should be recorded as candidates rather than automatically becoming official seed keywords.
+
+**Execution Mode:**
+
+Weekly Batch Processing.
+
+**Purpose:**
+
+- Discover real user expressions
+- Identify potential long-tail keywords
+- Recommend expressions suitable for social media tags
+- Discover candidate search keywords
+- Provide data for future keyword calibration
+
+**Dependency Flow:**
+
+```text
+Lawyer Approved Posts
+↓
+AI Content & Comment Analysis
+↓
+Analyzed Post & Comment Library
+↓
+Accumulate During the Week
+↓
+Sunday 10:30
+↓
+Long-tail Keyword Discovery
+↓
+Long-tail Keyword Candidates
+```
+
+---
+
+### Trigger E — Seed Keyword Calibration
+
+**Workflow:**
+
+Evaluate and calibrate official seed keyword performance.
+
+**Trigger Type:**
+
+Schedule Trigger.
+
+**Trigger Condition:**
+
+10:00 on the last day of each month.
+
+**Upstream Dependencies:**
+
+- Official Seed Keyword Library
+- Historical keyword performance data
+- Collected social media post data
+- Analyzed post and comment data
+- Long-tail keyword discovery results
+
+**Precondition:**
+
+Sufficient valid historical data must exist to evaluate keyword performance.
+
+If insufficient data exists for a keyword, the system should avoid making a strong retirement decision.
+
+The keyword may remain in:
+
+- Candidate
+- Testing
+- Active
+- Observe
+
+until sufficient evidence becomes available.
+
+**Execution Rules:**
+
+Evaluate keyword performance using real social media data.
+
+The exact scoring criteria and thresholds will be defined later during Decision Analysis.
+
+Possible keyword lifecycle:
+
+```text
+Candidate
+↓
+Testing
+↓
+Active
+↓
+Observe
+↓
+Retired
+```
+
+The system should recommend keyword status changes.
+
+Important keyword changes should remain subject to lawyer review during the MVP stage.
+
+**Execution Mode:**
+
+Monthly Batch Processing.
+
+**Purpose:**
+
+Prevent the keyword library from becoming static or outdated.
+
+Use real social media performance to continuously improve the quality of search keywords.
+
+**Keyword Feedback Flow:**
+
+```text
+Seed Keyword Library
+↓
+Social Media Collection
+↓
+Post Performance Data
+↓
+Content & Comment Analysis
+↓
+Long-tail Keyword Discovery
+↓
+Historical Keyword Performance
+↓
+Last Day of Month 10:00
+↓
+Keyword Calibration
+↓
+Keyword Update Recommendation
+↓
+Lawyer Review
+↓
+Updated Keyword Library
+↓
+Next Collection Cycle
+```
+
+**Design Principle:**
+
+Keyword calibration should be based on real social media performance rather than relying only on AI-generated keywords.
+
+---
+
+### Trigger F — Case Library Matching
+
+**Workflow:**
+
+Match lawyer-approved topics with potentially relevant cases from the lawyer's case library.
+
+**Trigger Type:**
+
+Schedule Trigger.
+
+**Trigger Condition:**
+
+Every Sunday at 10:30.
+
+**Upstream Dependencies:**
+
+- AI Content & Comment Analysis
+- Topic Analysis Results
+- Lawyer Approval
+- Approved Topic Pool
+- Lawyer Case Library
+
+**Precondition:**
+
+The Approved Topic Pool must contain at least one topic approved by the lawyer during the current analysis period.
+
+The Case Library must also be available for retrieval.
+
+If no approved topics exist, Case Library Matching should be skipped.
+
+**Execution Rules:**
+
+Only topics explicitly approved by the lawyer should enter weekly Case Library Matching.
+
+Lawyer approval does not immediately start Case Library Matching.
+
+Instead, approval changes the Topic's data state.
+
+```text
+Topic
+↓
+Lawyer Review
+↓
+Approved
+↓
+Topic Status = Approved
+↓
+Approved Topic Pool
+↓
+Wait for Weekly Batch
+↓
+Sunday 10:30
+↓
+Case Library Matching
+```
+
+Therefore:
+
+```text
+Lawyer Approval
+→ Human Decision / Data State Change
+
+Sunday 10:30
+→ Schedule Trigger
+
+Approved Topic Pool is not empty
+→ Precondition
+```
+
+**Execution Mode:**
+
+Weekly Batch Processing.
+
+**Purpose:**
+
+Identify potentially relevant cases for lawyer-approved social media topics so that content recommendations can combine:
+
+- Real social media discussion
+- Trending topics
+- User problems
+- Legal issues
+- Lawyer's real case experience
+
+**Important Note:**
+
+The detailed Case Library Matching method is intentionally not defined at the Trigger stage.
+
+Possible approaches such as:
+
+- Keyword Search
+- Metadata Filtering
+- Semantic Search
+- Embeddings
+- RAG
+
+will be evaluated later during Process, Decision and Technology Mapping.
+
+---
+
+### Trigger G — Candidate Script Topic Generation
+
+**Workflow:**
+
+Generate candidate script topics by combining approved social media topics with relevant case information.
+
+**Trigger Type:**
+
+Event Trigger / Workflow Completion Trigger.
+
+**Trigger Condition:**
+
+The weekly Case Library Matching workflow has successfully completed.
+
+**Upstream Dependencies:**
+
+- Approved Topic Pool
+- Topic Analysis Results
+- Topic Trend Data
+- Case Library Matching Results
+
+**Precondition:**
+
+At least one valid approved topic must exist.
+
+Required upstream analysis must be available before candidate topic generation begins.
+
+Case matching results should either:
+
+- contain relevant case candidates; or
+- explicitly indicate that no relevant case was found.
+
+Whether a topic without a matching case can still become a candidate script topic will be defined later during Decision Analysis.
+
+**Execution Rules:**
+
+Generate candidate script topics using available information such as:
+
+- Approved Topic
+- Social Media Discussion
+- User Problem
+- Legal Issue
+- Trend / Engagement Information
+- Relevant Case Candidates
+- Lawyer Business Direction
+
+The system generates recommendations rather than making the final content decision.
+
+**Execution Mode:**
+
+Weekly Batch Processing / Workflow Dependency.
+
+**Dependency Flow:**
+
+```text
+Approved Topic Pool
+↓
+Sunday 10:30
+↓
+Case Library Matching
+↓
+Case Matching Completed
+↓
+Candidate Script Topic Generation
+↓
+Candidate Topic List
+↓
+Lawyer Final Review
+↓
+Final Selected Topics
+```
+
+**Human-in-the-loop:**
+
+The system generates candidate script topics and supporting information.
+
+The lawyer retains final control over:
+
+- Case relevance
+- Professional judgment
+- Content direction
+- Final topic selection
+
+---
+
+### Trigger Summary
+
+| Workflow | Trigger Type | Trigger | Upstream Dependency | Execution Mode |
+|---|---|---|---|---|
+| A. Social Media Content Collection | Schedule | Monday–Saturday 10:00 | Seed Keyword Library | Scheduled Batch |
+| B. Priority Post Tracking | Schedule | Sunday 10:00 | Priority Post Pool | Weekly Batch |
+| C. AI Content & Comment Analysis | Manual / Human Approval | Lawyer approves candidate post | Candidate Post Pool | Human-in-the-loop |
+| D. Long-tail Keyword Discovery | Schedule | Sunday 10:30 | Analyzed Post & Comment Library | Weekly Batch |
+| E. Seed Keyword Calibration | Schedule | Last day of month 10:00 | Historical Keyword & Content Data | Monthly Batch |
+| F. Case Library Matching | Schedule | Sunday 10:30 | Approved Topic Pool + Case Library | Weekly Batch |
+| G. Candidate Script Topic Generation | Workflow Completion | Case Matching completed | Topic + Case Matching Results | Weekly Batch |
+
+---
+
+### Trigger Dependency Overview
+
+```text
+Official Seed Keyword Library
+        ↓
+[Schedule: Mon–Sat 10:00]
+        ↓
+A. Social Media Content Collection
+        ↓
+Engagement Screening
+        ↓
+Candidate Posts
+        ├─────────────────────────────┐
+        ↓                             │
+Lawyer Review                        │
+        ↓                             │
+Approved Posts                       │
+        ↓                             │
+C. AI Content & Comment Analysis     │
+        ↓                             │
+Analyzed Post & Comment Library      │
+        │                             │
+        │                    Engagement > 500
+        │                             ↓
+        │                    Priority Post Pool
+        │                             ↓
+        │                    [Sunday 10:00]
+        │                             ↓
+        │                    B. Post Tracking
+        │
+        ├─────────────────────────────┐
+        ↓                             ↓
+[Sunday 10:30]                Topic Analysis
+        ↓                             ↓
+D. Long-tail Discovery        Lawyer Approval
+        ↓                             ↓
+Long-tail Candidates          Approved Topic Pool
+        │                             ↓
+        │                     [Sunday 10:30]
+        │                             ↓
+        │                     F. Case Matching
+        │                             ↓
+        │                     Matching Completed
+        │                             ↓
+        │                     G. Candidate Topics
+        │                             ↓
+        │                     Lawyer Final Review
+        │
+        ↓
+Historical Keyword Data
+        ↓
+[Last Day of Month 10:00]
+        ↓
+E. Keyword Calibration
+        ↓
+Keyword Update Recommendation
+        ↓
+Lawyer Review
+        ↓
+Updated Seed Keyword Library
+        ↓
+Next Collection Cycle
+```
+
+---
+
+### Trigger Design Principles Learned
+
+This project distinguishes five different concepts:
+
+#### 1. Trigger
+
+What actually starts the workflow?
+
+Example:
+
+```text
+Sunday 10:00
+```
+
+#### 2. Upstream Dependency
+
+What previous workflow or data does the current workflow depend on?
+
+Example:
+
+```text
+Analyzed Post & Comment Library
+```
+
+#### 3. Precondition
+
+What must already be true before the workflow can proceed?
+
+Example:
+
+```text
+Approved Topic Pool is not empty
+```
+
+#### 4. Execution Rule
+
+What business rules control how the workflow runs?
+
+Example:
+
+```text
+Maximum 4 seed keywords per collection cycle
+```
+
+#### 5. Decision
+
+What condition determines the next action while the workflow is running?
+
+Example:
+
+```text
+Engagement > 500?
+↓
+YES → Priority Post Pool
+NO → Normal Post
+```
+
+---
+
+### Key Learning
+
+A workflow may depend on another workflow without being directly triggered by that workflow.
+
+Example:
+
+```text
+Task C
+↓
+Produces analyzed data
+↓
+Analyzed Post Library
+↓
+Wait
+↓
+Sunday 10:30
+↓
+Task D
+```
+
+Task D depends on Task C, but its actual Trigger remains the Sunday 10:30 Schedule Trigger.
+
+Therefore:
+
+> **Dependency determines what the workflow needs.  
+> Trigger determines when the workflow starts.**
+
+This distinction is important when designing batch-processing automation systems.

@@ -57,7 +57,15 @@
 
 > 什么情况下 Workflow 开始运行？
 
-## Trigger Types
+Trigger 分析不仅要确定“什么时候启动”，还需要区分：
+
+**Trigger → Upstream Dependency → Precondition → Execution Rule → Failure / Skip Handling**
+
+这些概念不能混在一起。
+
+---
+
+## 1.1 Trigger Types
 
 ### Event Trigger
 
@@ -69,6 +77,7 @@ Examples:
 - 收到新邮件
 - 上传新文件
 - 创建新订单
+- 上游 Workflow 完成
 
 ### Schedule Trigger
 
@@ -89,18 +98,18 @@ Examples:
 
 - 点击 Run
 - 点击“重新分析”
-- 管理员手动执行
+- 人工批准后启动下一流程
 
 ### Data Trigger
 
-数据达到某个条件时启动。
+数据发生变化或达到某个条件时启动。
 
 Examples:
 
-- Status 发生变化
-- Score > 80
-- 库存低于阈值
-- 数据库新增记录
+- Status changed to Approved
+- Database receives a new record
+- Score crosses a threshold
+- Inventory falls below a threshold
 
 ### External Trigger / Webhook
 
@@ -112,32 +121,285 @@ Examples:
 - SaaS Event
 - API Callback
 
-## Trigger Questions
+---
 
-- 什么事情启动 Workflow？
+## 1.2 Trigger
+
+> What starts the workflow?
+
+需要明确：
+
+- 什么事情真正启动 Workflow？
 - 谁触发？
-- Trigger 属于哪种类型？
+- Trigger Type 是什么？
 - Trigger 来源是什么？
 - 多久触发一次？
 - 是否存在多个 Trigger？
 - 是否允许重复触发？
-- 如何识别重复 Trigger？
+
+---
+
+## 1.3 Upstream Dependency
+
+> What upstream workflow or data does this workflow depend on?
+
+一个 Workflow 可以由 Schedule Trigger 启动，同时依赖其他 Workflow 已经产生的数据。
+
+Examples:
+
+```text
+Workflow A
+↓
+Produces Data
+↓
+Database
+↓
+Weekly Schedule Trigger
+↓
+Workflow B reads the data
+```
+
+Workflow B 的 Trigger 仍然是 Schedule Trigger。
+
+Workflow A / Database Data 属于：
+
+**Upstream Dependency**
+
+而不是 Trigger。
+
+需要检查：
+
+- 当前 Workflow 依赖哪些上游 Workflow？
+- 上游需要产生什么数据？
+- 上游 Workflow 是否必须成功完成？
+- 是否依赖历史数据？
+- Dependency 不满足时怎么办？
+
+---
+
+## 1.4 Precondition
+
+> What must already be true before the workflow can proceed?
+
+Precondition 是 Workflow 启动后继续执行必须满足的条件。
+
+Examples:
+
+```text
+Schedule Trigger
+Sunday 10:00
+↓
+Check Priority Post Pool
+↓
+Pool contains records?
+↓
+Yes → Continue
+No → Skip
+```
+
+其中：
+
+Sunday 10:00
+→ Trigger
+
+Priority Post Pool contains records
+→ Precondition
+
+需要检查：
+
+- 是否存在有效 Input？
+- 数据量是否达到最低要求？
+- 上游数据是否已经准备完成？
+- 是否满足运行条件？
+- Precondition 不满足时是 Skip、Wait 还是 Alert？
+
+---
+
+## 1.5 Execution Rule
+
+> What rules control how the workflow runs?
+
+Execution Rule 不是 Trigger。
+
+Examples:
+
+- 每次最多处理 4 个关键词
+- 每批最多处理 100 条记录
+- 只处理 Status = Active 的数据
+- Engagement > 500 才进入 Priority Pool
+
+需要检查：
+
+- 每次处理多少数据？
+- 数据选择规则是什么？
+- 是否存在 Priority？
+- 是否存在 Threshold？
+- 是否需要 Batch Processing？
+- 是否存在运行频率限制？
+
+---
+
+## 1.6 Failure / Skip Handling
+
+> What happens when the workflow cannot run normally?
+
+需要检查：
+
 - Trigger 失败怎么办？
-- 是否需要 Retry？
+- Upstream Dependency 不满足怎么办？
+- Precondition 不满足怎么办？
+- 是否 Skip？
+- 是否 Wait？
+- 是否 Retry？
+- Retry 几次？
 - 是否需要补跑？
-- 是否需要人工 Trigger？
+- 是否需要通知人工？
+- 是否记录 Skip / Failure 原因？
 
-## Definition
+---
 
-Trigger：
+## 1.7 Trigger vs Dependency vs Precondition vs Decision
 
-Trigger Type：
+必须区分：
 
-Frequency：
+### Trigger
 
-Trigger Source：
+**什么时候启动 Workflow？**
 
-Failure Handling：
+Example:
+
+```text
+Every Sunday at 10:00
+```
+
+### Upstream Dependency
+
+**Workflow 依赖什么上游流程或数据？**
+
+Example:
+
+```text
+Analyzed Post Library
+```
+
+### Precondition
+
+**Workflow 启动以后，什么条件必须成立才能继续？**
+
+Example:
+
+```text
+Analyzed Post Library contains valid records
+```
+
+### Decision
+
+**Workflow 运行过程中，根据什么条件决定下一步？**
+
+Example:
+
+```text
+Engagement > 500?
+↓
+Yes → Priority Post
+No → Normal Post
+```
+
+### Execution Rule
+
+**Workflow 运行时遵守什么规则？**
+
+Example:
+
+```text
+Maximum 4 seed keywords per run
+```
+
+---
+
+## 1.8 Trigger Analysis Template
+
+### Workflow Name
+
+TODO
+
+**Trigger Type:**
+
+TODO
+
+**Trigger Condition:**
+
+TODO
+
+**Upstream Dependencies:**
+
+TODO
+
+**Preconditions:**
+
+TODO
+
+**Execution Rules:**
+
+TODO
+
+**Failure / Skip Handling:**
+
+TODO
+
+**Execution Mode:**
+
+- [ ] Real-time
+- [ ] Batch Processing
+- [ ] Scheduled Batch
+- [ ] Event-driven
+- [ ] Manual
+
+---
+
+## 1.9 Trigger Analysis Questions
+
+For every workflow, ask:
+
+1. What actually starts this workflow?
+2. What type of trigger is it?
+3. Does it depend on another workflow?
+4. What upstream data must already exist?
+5. What preconditions must be satisfied?
+6. What execution rules control the run?
+7. Is this real-time or batch processing?
+8. What happens if no valid data exists?
+9. What happens if the upstream workflow fails?
+10. Does the workflow need Retry or Recovery?
+11. Could duplicate execution occur?
+12. Does the workflow need Manual Override?
+
+---
+
+## Trigger Design Principle
+
+> Dependency determines what the workflow needs before it can work.  
+> Trigger determines when the workflow starts.
+
+Do not treat every condition as a Trigger.
+
+A mature workflow should clearly separate:
+
+```text
+Trigger
+↓
+Dependency Check
+↓
+Precondition Check
+↓
+Execution Rules
+↓
+Process
+↓
+Decision
+↓
+Action
+```
 
 ---
 
