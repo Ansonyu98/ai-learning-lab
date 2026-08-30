@@ -16,42 +16,515 @@
 
 # 0. Business Problem
 
-## Current Situation
+> 在设计 Automation Workflow 之前，先理解真实业务问题。
 
-- 当前业务流程是什么？
-- 现在由谁完成？
-- 当前使用哪些工具或系统？
-- 当前流程需要多长时间？
-- 当前流程涉及哪些人员？
+核心原则：
 
-## Pain Points
+> Do not automate a process you do not understand.
 
-- 哪些步骤重复？
-- 哪些步骤最耗时？
-- 哪些步骤容易出错？
-- 哪些步骤容易遗漏？
-- 哪些步骤依赖人工判断？
-- 当前最大的流程瓶颈是什么？
+Business Problem Analysis 的目标不是马上寻找技术方案，而是先回答：
 
-## Automation Goal
-
-- 为什么需要自动化？
-- 希望减少哪些人工工作？
-- 希望 AI 解决什么问题？
-- 哪些问题不应该交给 AI？
-- 自动化之后理想流程是什么？
-
-## Success Metrics
-
-- Time Saved：
-- Cost Reduced：
-- Accuracy：
-- Error Reduction：
-- Manual Work Reduction：
-- Revenue / Conversion：
-- Other：
+```text
+Current Situation / As-Is Workflow
+↓
+Pain Points
+↓
+Root Causes / Constraints
+↓
+Automation Opportunities
+↓
+Automation Boundary
+↓
+Automation Goal
+↓
+Success Metrics
+```
 
 ---
+
+## 0.1 Current Situation / As-Is Workflow
+
+> 当前业务实际上是怎么运行的？
+
+首先描述现有业务流程，而不是直接描述希望建设的自动化系统。
+
+需要了解：
+
+- 当前业务流程是什么？
+- Workflow 从哪里开始？
+- 现在有哪些主要 Steps？
+- 每一步由谁完成？
+- 当前使用哪些工具 / 系统？
+- 数据从哪里来？
+- 数据保存在哪里？
+- 哪些步骤依赖人工操作？
+- 哪些步骤依赖人工判断？
+- 当前流程需要多长时间？
+- Workflow 最终产生什么业务结果？
+
+建议先画出：
+
+```text
+Current Trigger
+↓
+Step 1
+↓
+Step 2
+↓
+Step 3
+↓
+Current Output
+```
+
+这一阶段描述的是：
+
+> As-Is Workflow
+
+而不是未来的：
+
+> To-Be Workflow
+
+---
+
+## 0.2 Pain Points
+
+> 当前 Workflow 哪里存在问题？
+
+常见 Pain Points：
+
+### Repetitive Work
+
+哪些步骤需要不断重复执行？
+
+### Time-consuming Work
+
+哪些步骤最耗时间？
+
+### Error-prone Work
+
+哪些步骤容易出现人工错误？
+
+### Missing / Forgotten Work
+
+哪些步骤容易遗漏？
+
+### Inconsistent Work
+
+哪些步骤因为不同人员或不同时间执行，结果容易不一致？
+
+### Scalability Problem
+
+当数据量、客户量、平台数量或业务量增加以后，哪些步骤无法继续依靠人工扩展？
+
+### Information Retrieval Problem
+
+是否存在：
+
+- 数据分散
+- 查找困难
+- 历史信息难以追踪
+- 依赖个人记忆
+
+### Manual Decision Bottleneck
+
+哪些判断必须依赖人工？
+
+其中哪些：
+
+```text
+可以 Rule-based
+可以 AI-assisted
+必须 Human-controlled
+```
+
+---
+
+## 0.3 Root Causes / Constraints
+
+> Pain Point 为什么会发生？
+
+不要只记录表面问题。
+
+例如：
+
+```text
+Pain Point:
+人工整理数据耗时
+
+Possible Root Causes:
+- 数据来自多个平台
+- 数据格式不统一
+- 没有统一 Database
+- 缺少自动采集
+- 缺少标准化规则
+```
+
+分析时可以问：
+
+- 是 Process 问题还是 Tool 问题？
+- 是 Data 问题还是 Human Workload 问题？
+- 是否缺少统一标准？
+- 是否缺少系统连接？
+- 是否缺少历史数据？
+- 是否存在 API / Platform 限制？
+- 是否存在 Business Rule 不明确？
+- 是否存在必须保留的人工判断？
+
+核心原则：
+
+> Automation 应解决 Root Cause，而不仅仅自动化当前低效步骤。
+
+---
+
+## 0.4 Automation Opportunity
+
+> 哪些 Pain Points 值得通过 Automation / AI 改善？
+
+可以优先寻找：
+
+```text
+High Frequency
++
+High Repetition
++
+Clear Rules
++
+High Manual Cost
++
+Structured or Structurable Data
+```
+
+这些通常是较好的 Automation Opportunities。
+
+同时识别 AI 更适合解决的问题：
+
+```text
+Unstructured Content
+Semantic Understanding
+Classification
+Extraction
+Summarization
+Recommendation
+Matching
+```
+
+不要因为某一步可以自动化，就默认它应该自动化。
+
+需要同时考虑：
+
+```text
+Business Value
+Implementation Cost
+Risk
+Reliability
+Human Responsibility
+```
+
+---
+
+## 0.5 Automation Boundary
+
+> 哪些工作应该自动化，哪些应该由 AI 辅助，哪些必须保留人工控制？
+
+可以分为三层。
+
+### A. Fully Automated
+
+规则明确、重复性高、风险较低，可以正常由系统自动完成。
+
+Examples:
+
+- Data Collection
+- Data Transformation
+- Calculation
+- Deduplication
+- Scheduled Tracking
+- Database Update
+
+### B. AI-assisted
+
+需要语义理解或复杂判断，但 AI 不一定应该拥有最终决定权。
+
+Examples:
+
+- Classification
+- Content Analysis
+- Semantic Matching
+- Recommendation
+- First-pass Review
+
+常见流程：
+
+```text
+AI Analysis
+↓
+Recommendation
+↓
+Human Review / Confirmation
+```
+
+### C. Human-controlled
+
+涉及：
+
+- 高风险判断
+- 专业责任
+- 商业决策
+- 主观选择
+- 最终批准
+
+通常应该保留人工控制。
+
+Examples:
+
+- Final Approval
+- Final Business Decision
+- High-risk Professional Judgment
+- Final Content Selection
+
+核心原则：
+
+> Automation 的目标不是消灭 Human，而是把 Human 从低价值重复劳动中释放出来，让人工集中处理高价值判断。
+
+---
+
+## 0.6 Automation Goal
+
+> 自动化以后，希望 Workflow 发生什么变化？
+
+Automation Goal 应直接对应 Pain Points。
+
+不要只写：
+
+```text
+Improve Efficiency
+Use AI
+Automate Workflow
+```
+
+应该尽量明确：
+
+```text
+Reduce Manual Collection
+Reduce Repetitive Data Processing
+Improve Analysis Consistency
+Improve Tracking Capability
+Improve Information Retrieval
+Support Human Decision-making
+```
+
+需要回答：
+
+- 为什么需要 Automation？
+- 希望减少哪些 Manual Work？
+- 希望 AI 解决哪些问题？
+- 哪些问题不应该交给 AI？
+- 哪些步骤仍然需要 Human Review？
+- Automation 后理想的 To-Be Workflow 是什么？
+
+---
+
+## 0.7 Success Metrics
+
+> 如何证明 Automation 真的解决了 Business Problem？
+
+不要只判断：
+
+```text
+Workflow successfully ran
+```
+
+而应该判断：
+
+```text
+Did the business improve?
+```
+
+### Baseline
+
+自动化之前的当前水平。
+
+例如：
+
+```text
+Manual Processing Time:
+TBD
+
+Weekly Manual Operations:
+TBD
+```
+
+### Metric
+
+具体衡量什么？
+
+常见 Metrics：
+
+- Time Saved
+- Manual Work Reduction
+- Error Reduction
+- Accuracy
+- Processing Volume
+- Coverage
+- Response Time
+- Cost Reduction
+- Consistency
+- Adoption Rate
+- Conversion
+- Revenue Impact
+
+### Target
+
+希望改善到什么水平。
+
+结构：
+
+```text
+Baseline
+↓
+Metric
+↓
+Target
+```
+
+如果当前没有真实数据：
+
+> 不要虚构 Target。
+
+可以先标记：
+
+```text
+Baseline: TBD
+Target: TBD
+```
+
+等 Workflow 实际运行以后再建立 Baseline。
+
+---
+
+## 0.8 MVP Success Criteria
+
+MVP 不一定需要证明所有长期 Business Outcomes。
+
+应该优先验证：
+
+- Workflow 是否可以稳定运行？
+- 是否真正减少 Manual Work？
+- 数据是否可以稳定获取？
+- Output 是否具有实际业务价值？
+- AI Analysis 是否达到可接受水平？
+- Human 是否愿意使用结果？
+- 是否值得继续投入下一阶段？
+
+避免 MVP 一开始承担过多目标。
+
+---
+
+## 0.9 Business Problem Analysis Template
+
+```text
+Business Problem:
+
+Current Situation / As-Is Workflow:
+- Current Trigger:
+- Main Steps:
+- Current Tools:
+- People Involved:
+- Current Output:
+
+Pain Points:
+1.
+2.
+3.
+
+Root Causes / Constraints:
+1.
+2.
+3.
+
+Automation Opportunities:
+1.
+2.
+3.
+
+Automation Boundary:
+
+Fully Automated:
+-
+
+AI-assisted:
+-
+
+Human-controlled:
+-
+
+Automation Goal:
+-
+
+Success Metrics:
+
+Metric 1:
+Baseline:
+Target:
+
+Metric 2:
+Baseline:
+Target:
+
+MVP Success Criteria:
+-
+```
+
+---
+
+## 0.10 Business Problem Analysis Questions
+
+1. 当前业务真正是怎么运行的？
+2. Workflow 从什么业务事件开始？
+3. 当前有哪些主要步骤？
+4. 谁负责每一步？
+5. 哪些步骤最耗时间？
+6. 哪些步骤重复最多？
+7. 哪些步骤容易出错或遗漏？
+8. 哪些结果容易出现不一致？
+9. 哪些步骤无法随着业务量扩大？
+10. Pain Point 背后的 Root Cause 是什么？
+11. 哪些问题适合 Rule-based Automation？
+12. 哪些问题适合 AI-assisted？
+13. 哪些 Decision 必须 Human-controlled？
+14. Automation 真正希望改变什么？
+15. 如何衡量 Automation 是否有效？
+16. 当前 Baseline 是什么？
+17. Target 是什么？
+18. MVP 最先需要证明什么？
+
+---
+
+## Business Problem Design Principle
+
+> Understand the business before designing the automation.
+
+推荐分析顺序：
+
+```text
+As-Is Workflow
+↓
+Pain Points
+↓
+Root Causes
+↓
+Automation Opportunities
+↓
+Automation Boundary
+↓
+Automation Goal
+↓
+Success Metrics
+↓
+To-Be Workflow
+```
+
+Technology Selection 应发生在 Business Problem 和 Workflow Analysis 之后。
 
 # 1. Trigger
 
@@ -405,9 +878,39 @@ Action
 
 # 2. Input
 
-> Workflow 开始以后，需要哪些数据？
+> Workflow 被 Trigger 启动以后，需要哪些数据、参数或配置才能继续运行？
 
-## Input Types
+Input Analysis 不只是回答：
+
+> 系统需要什么数据？
+
+还需要分析：
+
+```text
+Source
+↓
+Fields
+↓
+Requirement
+↓
+Data Type / Format
+↓
+Normalization
+↓
+Validation
+↓
+Missing / Invalid Handling
+↓
+Freshness
+```
+
+核心目标：
+
+> 为后续 Process 提供结构清晰、格式统一、质量已知、时间明确、可以正常使用的数据。
+
+---
+
+## 2.1 Input Types
 
 ### User Input
 
@@ -415,10 +918,10 @@ Action
 
 Examples:
 
-- 表单
+- Form
 - Keyword
-- 文件
-- 用户设置
+- File
+- User Settings
 
 ### System Input
 
@@ -433,7 +936,7 @@ Examples:
 
 ### External Input
 
-外部平台或 API 提供的数据。
+外部平台、API 或其他系统提供的数据。
 
 Examples:
 
@@ -462,36 +965,868 @@ Examples:
 Examples:
 
 - Threshold
-- Frequency
+- Time Range
 - Maximum Results
 - Scoring Rules
 - Filter Rules
 
-## Input Questions
+### System-generated Input
 
-- 数据来自哪里？
-- 谁提供？
-- 数据格式是什么？
-- Required Fields 是什么？
-- Optional Fields 是什么？
-- 是否可能缺失？
-- 是否可能重复？
-- 数据是否可信？
-- 是否需要清洗？
-- 是否需要验证？
-- 是否保存 Raw Data？
-- 是否需要历史数据？
-- 数据量有多大？
-- 是否需要 API Authentication？
-- 是否包含敏感数据？
+由系统自己产生的数据。
 
-## Input Table
+Examples:
 
-| Input | Type | Source | Format | Required | Notes |
-|---|---|---|---|---|---|
-| | | | | | |
+- Timestamp
+- Workflow Run ID
+- Calculated Status
+- Previous Workflow Output
 
 ---
+
+## 2.2 Source
+
+> 数据从哪里来？
+
+分析每个 Input 时首先明确 Source。
+
+常见 Source：
+
+```text
+Human
+Database
+Previous Workflow
+API
+File
+External Platform
+System
+AI
+Configuration
+```
+
+需要问：
+
+- 谁产生这个数据？
+- Workflow 从哪里获得？
+- 是否依赖 External System？
+- Source 不可用时怎么办？
+
+---
+
+## 2.3 Fields
+
+不要只定义模糊的数据对象。
+
+应该进一步拆解：
+
+> Workflow 实际需要哪些 Fields？
+
+例如：
+
+```text
+Business Object
+├── ID
+├── Name
+├── Status
+├── Created At
+└── Other Fields
+```
+
+字段应该围绕后续 Process 的真实需要设计。
+
+避免：
+
+> 因为“以后可能有用”而无限采集数据。
+
+---
+
+## 2.4 Requirement
+
+判断字段缺失以后：
+
+> Workflow 是否还能正常运行？
+
+常见类型：
+
+```text
+Required / Non-null
+Required / Empty Allowed
+Optional
+```
+
+### Required / Non-null
+
+字段必须存在，并具有有效值。
+
+### Required / Empty Allowed
+
+字段必须存在，但业务上允许没有内容。
+
+### Optional
+
+字段缺失也不会影响 Workflow 正常运行。
+
+---
+
+## 2.5 Empty vs Missing
+
+必须区分：
+
+```text
+Empty ≠ Missing
+```
+
+### Empty
+
+字段存在，但 Source 本身没有内容。
+
+例如：
+
+```text
+tags = []
+```
+
+### Missing
+
+理论上应该获得数据，但系统没有成功获取。
+
+例如：
+
+```text
+tags = null
+```
+
+如果数据本来存在但采集失败，则属于 Data Quality Issue。
+
+因此：
+
+> 字段没有内容，不一定代表采集失败。
+
+---
+
+## 2.6 Common Data Types
+
+常见 Data Types：
+
+| Data Type | Meaning | Example |
+|---|---|---|
+| String | 文本 | `"example"` |
+| Integer | 整数 | `1250` |
+| Float / Number | 小数 / 数值 | `4.5` |
+| Boolean | 是 / 否 | `true / false` |
+| Array / List | 一组数据 | `["A", "B"]` |
+| Datetime | 日期 + 时间 | `2026-08-28 14:30` |
+| Object | 结构化对象 | `{"name": "A", "count": 10}` |
+| Enum | 只能从预设值中选择 | `Active / Inactive` |
+
+注意：
+
+```text
+"1250" → String
+1250   → Integer
+```
+
+Data Type 应根据数据未来如何被使用来决定。
+
+例如：
+
+> ID 即使由数字组成，如果主要用于识别对象而不是计算，通常可以使用 String。
+
+---
+
+## 2.7 Input vs Configuration vs Process vs Decision
+
+需要区分：
+
+### Input
+
+系统需要什么。
+
+### Configuration
+
+当前参数设置是什么。
+
+### Process
+
+系统拿到 Input 后执行什么操作。
+
+### Decision
+
+系统根据什么条件决定下一步。
+
+例如：
+
+```text
+Input:
+Time Range
+
+Configuration:
+Last 7 Days
+
+Process:
+Filter Data by Time Range
+
+Decision:
+Score > Threshold?
+```
+
+不要把 Configuration、Process 或 Decision Rule 混进 Input 定义。
+
+---
+
+## 2.8 Normalization
+
+Normalization 是：
+
+> 将来源不同、格式不同的数据转换成系统统一使用的标准格式。
+
+推荐处理顺序：
+
+```text
+Raw Data
+↓
+Normalization / Transformation
+↓
+Validation
+↓
+Eligible Data
+↓
+Process
+```
+
+常见 Normalization：
+
+- String → Integer / Number
+- Relative Time → Datetime
+- String → Array
+- Trim Whitespace
+- Remove Duplicate Values
+- Remove Unnecessary Characters
+- Standardize Date Format
+- Standardize Enum Values
+- Standardize Units
+
+Example:
+
+```text
+Raw:
+"1.2万"
+
+↓ Normalize
+
+12000
+
+↓ Validate
+
+Integer
+Value >= 0
+```
+
+核心区别：
+
+> Normalization 负责统一数据；Validation 负责判断数据能不能用。
+
+---
+
+## 2.9 Validation
+
+Validation 是：
+
+> 检查数据是否符合系统和业务要求。
+
+常见 Validation：
+
+### Required Validation
+
+```text
+Value != null
+Value != ""
+```
+
+### Data Type Validation
+
+```text
+String
+Integer
+Array<String>
+Datetime
+```
+
+### Format Validation
+
+例如：
+
+```text
+ID Format
+URL Format
+Email Format
+Datetime Format
+```
+
+### Value Range Validation
+
+例如：
+
+```text
+Value >= 0
+```
+
+### Allowed Value Validation
+
+例如：
+
+```text
+Status ∈ [Active, Inactive, Retired]
+```
+
+### Existence / Availability Validation
+
+检查数据指向的真实对象是否存在或可以访问。
+
+### Cross-field Validation
+
+一个 Field 是否正确，需要结合其他 Field 判断。
+
+### Completeness Validation
+
+数据存在不代表数据完整。
+
+需要判断：
+
+```text
+Is the data complete enough for downstream processing?
+```
+
+---
+
+## 2.10 Data Quality Status
+
+真实系统不应该只有：
+
+```text
+Valid
+Invalid
+```
+
+可以进一步区分：
+
+```text
+Valid
+Incomplete
+Missing
+Invalid
+Unavailable
+```
+
+### Valid
+
+数据符合要求，可以正常使用。
+
+### Incomplete
+
+数据已经获得，但不完整。
+
+原则：
+
+> Incomplete Data ≠ No Business Value.
+
+是否继续使用，应根据业务价值判断。
+
+### Missing
+
+应该存在的数据没有成功获得。
+
+### Invalid
+
+数据存在，但违反格式或业务规则。
+
+### Unavailable
+
+原始 Business Object 已经无法访问。
+
+Examples:
+
+- Deleted
+- Private
+- Access Restricted
+- No Longer Exists
+
+---
+
+## 2.11 Missing / Invalid Handling
+
+发现数据问题以后，不应该机械执行：
+
+```text
+Invalid
+↓
+Delete
+```
+
+应该先判断原因：
+
+```text
+Missing / Incomplete / Invalid
+            ↓
+      Determine Reason
+            ↓
+├── Source 本身没有数据
+│   → Valid Empty
+│
+├── Temporary Error
+│   → Retry
+│
+├── Format 不统一
+│   → Normalize / Transform
+│
+├── Current Method 无法获取完整数据
+│   → Alternative Source / Method
+│
+├── Partial Data
+│   → Keep + Mark Incomplete
+│
+├── Invalid Data
+│   → Reject / Skip / Manual Review
+│
+└── Source Object 无法访问
+    → Mark Unavailable
+```
+
+核心原则：
+
+> Missing Data Handling 应根据 Failure Reason 决定，而不是所有异常都使用同一种处理方式。
+
+---
+
+## 2.12 Retry & Failure Reason
+
+临时错误可以 Retry。
+
+Examples:
+
+- Network Timeout
+- API Timeout
+- Temporary Service Error
+- Rate Limit
+
+基本逻辑：
+
+```text
+Attempt
+↓
+Failed
+↓
+Retry
+↓
+Retry Limit Reached?
+├── No → Retry
+└── Yes → Stop + Record Failure
+```
+
+原则：
+
+> Retry 必须存在上限，不能无限执行。
+
+同时应该尽可能记录 Failure Reason：
+
+```text
+Network Error
+API Error
+Timeout
+Rate Limit
+Parsing Error
+Permission Error
+Source Unavailable
+Unknown
+```
+
+Failure Reason 可以帮助后续定位和优化 Workflow。
+
+---
+
+## 2.13 Data Freshness
+
+数据不仅需要正确，还需要知道：
+
+> 这个数据是什么时候产生、采集或更新的？
+
+常见字段：
+
+```text
+Created At
+Published At
+Collected At
+Updated At
+Analyzed At
+Tracked At
+```
+
+需要区分：
+
+```text
+Source Time
+≠
+System Collection Time
+```
+
+Freshness Analysis 可以问：
+
+- When was the data generated?
+- When was it collected?
+- When was it last updated?
+- Is it still fresh enough for this Workflow?
+
+---
+
+## 2.14 Timezone
+
+Datetime 数据需要考虑 Timezone。
+
+不同 Source 可能使用：
+
+```text
+UTC
+UTC+8
+Local Time
+```
+
+跨系统 Workflow 应明确：
+
+- Source Timezone
+- System Timezone
+- 是否需要统一转换
+- 最终保存的标准
+
+核心原则：
+
+> Datetime 不只是日期和时间，还需要明确 Timezone。
+
+---
+
+## 2.15 Current State vs History
+
+需要区分：
+
+```text
+Current State
+```
+
+和：
+
+```text
+History
+```
+
+Current State 回答：
+
+> 现在是什么？
+
+History 回答：
+
+> 它是怎么变化的？
+
+例如：
+
+```text
+Week 1 = 20
+Week 2 = 50
+Week 3 = 100
+```
+
+才能进行 Trend Analysis。
+
+如果 Workflow 未来需要：
+
+- Trend Analysis
+- Performance Analysis
+- State Change Analysis
+
+就需要考虑 Historical Observation，而不是只覆盖保存最新值。
+
+---
+
+## 2.16 Historical Observation
+
+通用结构：
+
+```text
+Observation
+├── Object ID
+├── Observed At
+└── Observed Values
+```
+
+例如：
+
+```text
+Object
+↓
+Observation 1
+↓
+Observation 2
+↓
+Observation 3
+↓
+Trend Analysis
+```
+
+是否保存 History 应根据业务价值决定。
+
+---
+
+## 2.17 Raw Data vs Derived Data
+
+### Raw Data
+
+从 Source 直接获得的数据。
+
+### Derived Data
+
+通过 Raw Data 计算、转换或推导得到的数据。
+
+例如：
+
+```text
+Raw Data
+├── Value A
+├── Value B
+└── Value C
+
+Derived Data
+└── Total = A + B + C
+```
+
+原则：
+
+> 重要 Raw Data 与 Derived Data 尽量分开保存。
+
+这样未来计算逻辑发生变化时，仍然可以重新计算。
+
+---
+
+## 2.18 Data Relationship
+
+除了分析单个 Field，还需要考虑 Business Objects 之间的 Relationship。
+
+常见关系：
+
+```text
+One-to-One
+One-to-Many
+Many-to-Many
+```
+
+当同一个 Business Object 可能通过多个：
+
+- Sources
+- Keywords
+- Workflows
+- Conditions
+
+被发现时，需要考虑是否应该保存这些 Relationships。
+
+---
+
+## 2.19 Deduplication vs Relationship Preservation
+
+Deduplication 的目标是：
+
+> 避免同一个 Business Object 被重复创建。
+
+但：
+
+```text
+Duplicate Object
+≠
+Duplicate Relationship
+```
+
+例如：
+
+```text
+Source A → Object 001
+Source B → Object 001
+```
+
+可以：
+
+```text
+Object 001
+→ Only One Object
+
+Source A → Object 001
+Source B → Object 001
+→ Preserve Relationships
+```
+
+因此：
+
+> 去重时不仅要考虑哪些 Object 不应该重复，还要考虑哪些有价值的 Relationship 必须保留。
+
+---
+
+## 2.20 Progressive Data Enrichment
+
+不是所有数据都必须在 Workflow 第一阶段全部获取。
+
+可以采用：
+
+> Progressive Data Enrichment
+
+流程：
+
+```text
+Collect Minimum Required Data
+↓
+Initial Screening
+↓
+Determine Business Value
+↓
+Collect Additional / Expensive Data
+↓
+Deep Processing / Analysis
+```
+
+适用于：
+
+- API 调用有成本
+- Data Collection 成本较高
+- AI Token 成本较高
+- 深度数据量很大
+- 只有部分 Business Objects 值得进一步分析
+
+原则：
+
+> 先以最低必要成本判断 Business Value，再为高价值对象补充更深的数据。
+
+---
+
+## 2.21 Input Specification
+
+完成 Input Analysis 后，可以整理成 Input Specification。
+
+通用表格：
+
+| Field | Source | Data Type | Requirement | Normalization | Validation | Missing / Invalid Handling | Freshness |
+|---|---|---|---|---|---|---|---|
+| | | | | | | | |
+
+也可以使用：
+
+```text
+Field:
+
+Source:
+
+Data Type:
+
+Requirement:
+- Required / Non-null
+- Required / Empty Allowed
+- Optional
+
+Normalization:
+
+Validation:
+
+Missing / Invalid Handling:
+
+Failure Reason:
+
+Freshness:
+
+Timezone:
+
+History:
+
+Relationship:
+```
+
+Input Specification 的目的不是制造文档，而是：
+
+> 让后续 Implementation 清楚知道系统需要什么数据，以及什么样的数据才可以被使用。
+
+---
+
+## 2.22 Input Analysis Questions
+
+For every workflow, ask:
+
+1. Workflow 需要什么数据才能运行？
+2. 每个 Input 来自哪里？
+3. 需要哪些具体 Fields？
+4. 哪些 Required？哪些 Optional？
+5. Empty 是否允许？
+6. 每个 Field 的 Data Type 是什么？
+7. Raw Data 是否需要 Normalization？
+8. Normalized Data 应满足什么 Validation？
+9. 数据是否完整？
+10. Missing / Invalid / Incomplete 时怎么办？
+11. 是否需要 Retry？
+12. 是否需要记录 Failure Reason？
+13. 数据是否存在 Freshness 要求？
+14. Datetime 是否需要考虑 Timezone？
+15. 是否需要 Current State 还是 Historical Data？
+16. 哪些是 Raw Data？哪些是 Derived Data？
+17. Business Objects 之间是否存在 Relationship？
+18. Deduplication 是否会导致 Relationship 丢失？
+19. 是否可以通过 Progressive Data Enrichment 降低成本？
+20. 是否已经形成清晰的 Input Specification？
+
+---
+
+## Input Design Principle
+
+Input Analysis 不只是：
+
+> What data do we need?
+
+而应该完整考虑：
+
+```text
+What Data?
+↓
+From Where?
+↓
+What Fields?
+↓
+What Data Type?
+↓
+Normalize?
+↓
+Valid?
+↓
+Complete?
+↓
+If Not, What Happens?
+↓
+Fresh Enough?
+↓
+Need History?
+↓
+Need Relationships?
+↓
+How Much Data Do We Really Need Now?
+```
+
+最终：
+
+```text
+Good Input
+=
+Correct Structure
++
+Consistent Format
++
+Valid Data
++
+Known Quality
++
+Known Time
++
+Traceable History
++
+Preserved Relationships
+```
 
 # 3. Process
 
