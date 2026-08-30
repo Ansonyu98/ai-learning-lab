@@ -2093,24 +2093,39 @@ Candidate Topic Generation
 
 ## 2.18 Inputs for Downstream Workflows
 
-Detailed Input Specifications for Tasks B–G will be progressively completed when their Process and Decision logic is analyzed.
+Task A has completed detailed Input Analysis for the current MVP scope.
 
-Current known upstream inputs include:
+Tasks B–G have currently identified only their main Input / Dependency. Their detailed Input Analysis still needs to be completed.
 
-| Workflow | Main Input / Dependency |
-|---|---|
-| B. Priority Post Tracking | Priority Post Pool + Post Identity + Previous Engagement History |
-| C. AI Content & Comment Analysis | Lawyer-approved Candidate Post + Enriched Comment Content |
-| D. Long-tail Keyword Discovery | Analyzed Post & Comment Library |
-| E. Seed Keyword Calibration | Keyword Library + Search Hit History + Historical Performance Data + Long-tail Candidates |
-| F. Case Library Matching | Approved Topic Pool + Case Library |
-| G. Candidate Script Topic Generation | Approved Topics + Topic Analysis + Trend Data + Case Matching Results |
+| Workflow | Main Input / Dependency | Input Analysis Status |
+|---|---|---|
+| A. Social Media Content Collection | Seed Keyword Library + Platform Configuration + Search Configuration | Completed for Current MVP |
+| B. Priority Post Tracking | Priority Post Pool + Post Identity + Previous Engagement History | To Be Completed |
+| C. AI Content & Comment Analysis | Lawyer-approved Candidate Post + Enriched Comment Content | To Be Completed |
+| D. Long-tail Keyword Discovery | Analyzed Post & Comment Library | To Be Completed |
+| E. Seed Keyword Calibration | Keyword Library + Search Hit History + Historical Performance Data + Long-tail Candidates | To Be Completed |
+| F. Case Library Matching | Approved Topic Pool + Case Library | To Be Completed |
+| G. Candidate Script Topic Generation | Approved Topics + Topic Analysis + Trend Data + Case Matching Results | To Be Completed |
 
-These are currently high-level definitions.
+The project will complete detailed Input Analysis for Tasks B–G before moving into Process Analysis.
 
-Their detailed Fields, Validation, Decision Rules and Output Structures should be defined when each workflow reaches the corresponding analysis stage.
+During the analysis of Tasks B–G, new downstream Input requirements may reveal missing upstream data requirements.
 
----
+If this happens, the relevant upstream workflow should be updated.
+
+Example:
+
+Downstream Input Requirement
+↓
+Check Upstream Data
+↓
+Missing Required Data?
+├── No → Continue
+└── Yes → Update Upstream Data Requirement
+
+Therefore, an Input marked as "Completed" means:
+
+> Completed for the current MVP analysis stage, not permanently finalized.
 
 ## 2.19 Current Input Design Decisions
 
@@ -2146,21 +2161,26 @@ The MVP currently follows these principles:
 
 ## 2.20 Input Analysis Status
 
+Current project status:
+
 ```text
 Task A — Social Media Content Collection
-Input Analysis: Completed for current MVP scope
+Input Analysis: Completed for Current MVP
 
-Tasks B–G
-Input Analysis: High-level dependencies identified
-Detailed specifications: To be completed progressively
-```
+Task B — Priority Post Tracking
+Input Analysis: To Be Completed
 
-The next analysis stage for Task A is:
+Task C — AI Content & Comment Analysis
+Input Analysis: To Be Completed
 
-```text
-Process Analysis
-```
+Task D — Long-tail Keyword Discovery
+Input Analysis: To Be Completed
 
-Core question:
+Task E — Seed Keyword Calibration
+Input Analysis: To Be Completed
 
-> How does the system transform the defined Task A inputs into Top 5 Candidate Posts in a reliable and repeatable workflow?
+Task F — Case Library Matching
+Input Analysis: To Be Completed
+
+Task G — Candidate Script Topic Generation
+Input Analysis: To Be Completed
