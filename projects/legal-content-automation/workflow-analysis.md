@@ -1186,3 +1186,981 @@ Therefore:
 > Trigger determines when the workflow starts.**
 
 This distinction is important when designing batch-processing automation systems.
+## 2. Input
+
+This section defines the business data and configuration required by the Legal Content Automation workflows.
+
+The purpose of this section is to define:
+
+- what data each workflow needs;
+- where the data comes from;
+- which fields are required;
+- how raw platform data should be normalized and validated;
+- how incomplete or invalid data should be handled;
+- which historical observations and relationships should be preserved.
+
+Detailed technical implementation will be defined later during Technology Mapping.
+
+---
+
+### 2.1 Input Architecture
+
+The current system contains several major input sources:
+
+```text
+Official Seed Keyword Library
+        +
+Platform Configuration
+        +
+Search Configuration
+        ↓
+Social Media Content Collection
+        ↓
+Candidate Post Data
+        ↓
+Lawyer Review
+        ↓
+Approved Post Data
+        ↓
+Content & Comment Enrichment
+        ↓
+AI Analysis
+```
+
+Historical data is also required for later workflows:
+
+```text
+Search Hit History
+→ Keyword Performance / Calibration
+
+Engagement History
+→ Post Trend Detection
+
+Analyzed Post & Comment Library
+→ Long-tail Keyword Discovery
+
+Approved Topic Pool
+→ Case Library Matching
+
+Case Library
+→ Candidate Topic Generation
+```
+
+---
+
+## 2.2 Task A — Social Media Content Collection Inputs
+
+Task A collects social media posts based on official seed keywords.
+
+### Input 1 — Official Seed Keyword
+
+**Source:**
+
+Official Seed Keyword Library.
+
+**Required:**
+
+Yes.
+
+**Current Requirement:**
+
+The keyword must:
+
+- exist in the Keyword Library;
+- not be empty;
+- not have `Retired` status;
+- currently be eligible for search.
+
+Example:
+
+```text
+Keyword:
+调岗降薪
+
+Status:
+Active
+```
+
+Workflow:
+
+```text
+Seed Keyword Library
+↓
+Read Keyword
+↓
+Check Status
+↓
+Eligible?
+├── Yes → Continue Collection
+└── No  → Skip Keyword
+```
+
+---
+
+### Input 2 — Target Platform
+
+**Source:**
+
+Platform Configuration.
+
+**Required:**
+
+Yes.
+
+**Current MVP Platform:**
+
+```text
+Xiaohongshu
+```
+
+Future versions may support additional platforms.
+
+The platform must:
+
+- exist in the supported platform configuration;
+- currently be Active;
+- have a usable data acquisition channel.
+
+Possible acquisition methods may include:
+
+```text
+Official API
+Third-party API
+Web Collection / Scraping
+Other Connector
+```
+
+The exact acquisition technology is intentionally not defined at the Input stage.
+
+The business requirement is:
+
+> The system must be able to acquire the required data from the selected platform.
+
+---
+
+### Input 3 — Post Time Range
+
+**Source:**
+
+Search Configuration.
+
+**Required:**
+
+Yes.
+
+**Current MVP Value:**
+
+```text
+Last 7 Days
+```
+
+The collection workflow should ultimately retain posts published within the configured time range.
+
+If the selected acquisition method cannot directly filter by publication time:
+
+```text
+Collect Search Results
+↓
+Read Published At
+↓
+Normalize Datetime
+↓
+Secondary Time Filtering
+```
+
+The business requirement applies to the final eligible dataset rather than requiring the external platform or API to support native time filtering.
+
+---
+
+### Input 4 — Collection Limit
+
+**Source:**
+
+Search Configuration.
+
+**Required:**
+
+Yes.
+
+**Current MVP Value:**
+
+```text
+Maximum 5 Candidate Posts
+per Seed Keyword
+per Collection Run
+```
+
+Rules:
+
+- The value must be a positive integer.
+- Fewer than 5 results are acceptable if insufficient eligible posts exist.
+- Duplicate posts do not count as additional unique Candidate Posts.
+
+---
+
+### Input 5 — Candidate Selection Strategy
+
+**Source:**
+
+Search Configuration / Business Rules.
+
+**Required:**
+
+Yes.
+
+Current priority:
+
+```text
+High Relevance
++
+High Engagement
+```
+
+Among posts within the configured time range, the system should prioritize posts that:
+
+1. are relevant to the Seed Keyword / target legal topic; and
+2. demonstrate stronger engagement.
+
+The system retains a maximum of 5 Candidate Posts for each Seed Keyword during each collection cycle.
+
+The exact relevance calculation and ranking logic will be defined later during Process and Decision Analysis.
+
+---
+
+## 2.3 Candidate Post Data
+
+Task A should collect enough information to support:
+
+- initial screening;
+- lawyer review;
+- engagement calculation;
+- future tracking;
+- later AI analysis.
+
+Current Candidate Post structure:
+
+```text
+Candidate Post
+│
+├── Identity
+│   ├── Post ID
+│   ├── Post URL
+│   └── Platform
+│
+├── Content
+│   ├── Title
+│   ├── Post Content
+│   ├── Author
+│   └── Tags / Hashtags
+│
+├── Time
+│   └── Published At
+│
+├── Raw Engagement
+│   ├── Likes
+│   ├── Saves
+│   └── Comments Count
+│
+└── Derived Data
+    └── Engagement
+```
+
+Search relationships and historical observations are stored separately rather than duplicated inside the Post object.
+
+---
+
+## 2.4 Candidate Post Input Specification
+
+| Field | Source | Data Type | Requirement | Main Validation / Handling |
+|---|---|---|---|---|
+| Post ID | Platform | String | Required / Non-null | Valid format; corresponding post should be identifiable |
+| Post URL | Platform | String | Required / Non-null | Valid URL; consistent with Platform |
+| Platform | System / Platform | Enum | Required / Non-null | Must belong to supported platforms |
+| Title | Platform | String | Required / Non-null | Trim whitespace; must not be empty after normalization |
+| Post Content | Platform | String | Required | Complete → Valid; partial → Incomplete |
+| Author | Platform | String | Optional | Missing author does not block Task A |
+| Tags / Hashtags | Platform | Array<String> | Required / Empty Allowed | Field must exist; `[]` is valid |
+| Published At | Platform | Datetime | Required / Non-null | Parseable; normalized; not future; within configured collection range |
+| Likes | Platform | Integer | Required / Non-null | Normalize first; value >= 0 |
+| Saves | Platform | Integer | Required / Non-null | Normalize first; value >= 0 |
+| Comments Count | Platform | Integer | Required / Non-null | Normalize first; value >= 0 |
+| Engagement | System Calculated | Integer | Derived | Likes + Saves + Comments Count |
+
+---
+
+## 2.5 Engagement
+
+Current engagement formula:
+
+```text
+Engagement
+=
+Likes
++
+Saves
++
+Comments Count
+```
+
+`Likes`, `Saves`, and `Comments Count` are Raw Data.
+
+`Engagement` is Derived Data.
+
+Therefore:
+
+```text
+Raw Engagement Data
+├── Likes
+├── Saves
+└── Comments Count
+
+        ↓ Calculate
+
+Derived Data
+└── Engagement
+```
+
+The raw metrics should be preserved rather than storing only the final Engagement value.
+
+---
+
+## 2.6 Top 5 Candidate vs Priority Post
+
+Two different business rules must remain separate.
+
+### Candidate Selection
+
+```text
+Relevant Search Results
+↓
+Relevance + Engagement Evaluation
+↓
+Ranking
+↓
+Top 5
+↓
+Candidate Post Pool
+```
+
+`Top 5` determines which posts become Candidate Posts for lawyer review.
+
+### Priority Post Eligibility
+
+Current rule:
+
+```text
+Engagement > 500
+→ Priority Post
+```
+
+Therefore:
+
+```text
+Candidate Post
+↓
+Calculate Engagement
+↓
+Engagement > 500?
+├── Yes → Priority Post Pool
+└── No  → Normal Candidate
+```
+
+A post does not need Engagement > 500 to become a Candidate Post.
+
+`Top 5` and `Engagement > 500` serve different business purposes.
+
+---
+
+## 2.7 Tags / Hashtags
+
+Tags / Hashtags are required because they support later workflows including:
+
+- Long-tail Keyword Discovery
+- Keyword Calibration
+- Weekly Topic Analysis
+- Publishing Tag Recommendation
+
+Current specification:
+
+```text
+Data Type:
+Array<String>
+
+Requirement:
+Required Field / Empty Allowed
+```
+
+Example:
+
+```text
+["劳动仲裁", "调岗降薪", "职场维权"]
+```
+
+Raw values should be normalized where possible.
+
+Example:
+
+```text
+["#劳动仲裁", " 调岗降薪 ", "劳动仲裁"]
+
+↓ Normalize
+
+["劳动仲裁", "调岗降薪"]
+```
+
+Normalization may include:
+
+- Remove `#`
+- Trim whitespace
+- Remove duplicate values
+
+Important distinction:
+
+```text
+tags = []
+→ Valid Empty
+
+tags = null
+→ Potential Missing Data
+```
+
+---
+
+## 2.8 Post Content Data Quality
+
+Post Content is required for later analysis, but incomplete content should not automatically cause the Post record to be discarded.
+
+Possible states:
+
+```text
+Complete Content
+→ Valid
+
+Partial Content
+→ Incomplete
+
+Content expected but not obtained
+→ Missing
+
+Post deleted / inaccessible
+→ Unavailable
+```
+
+Principle:
+
+> Incomplete content does not automatically mean the post has no business value.
+
+If partial content is still sufficient for initial screening, the Candidate Post may remain in the system and be enriched later.
+
+---
+
+## 2.9 Progressive Data Enrichment
+
+The MVP uses Progressive Data Enrichment.
+
+Task A does not need to collect all expensive or deep data immediately.
+
+Current flow:
+
+```text
+Search Results
+↓
+Collect Basic Post Data
+↓
+Candidate Post Pool
+↓
+Lawyer Review
+↓
+Approved?
+├── No → No Deep Enrichment
+└── Yes
+      ↓
+Collect Additional Data
+      ↓
+Comment Content
+      ↓
+Task C — AI Content & Comment Analysis
+```
+
+Task A still collects:
+
+```text
+Comments Count
+```
+
+because it is required for Engagement calculation.
+
+However:
+
+```text
+Comment Content
+```
+
+is collected later for posts approved for deeper analysis.
+
+Purpose:
+
+- reduce unnecessary data acquisition;
+- reduce API / collection cost;
+- reduce AI token usage;
+- reduce storage and processing cost;
+- focus deep analysis on higher-value posts.
+
+---
+
+## 2.10 Data Normalization
+
+Raw social media data may use inconsistent formats.
+
+The system should normalize raw data before validation.
+
+General flow:
+
+```text
+Raw Platform Data
+↓
+Normalization
+↓
+Validation
+↓
+Eligible Data
+```
+
+Examples:
+
+### Engagement Number
+
+```text
+"1.2万"
+↓
+12000
+```
+
+### Relative Time
+
+```text
+"昨天 18:30"
+↓
+Concrete Datetime
+```
+
+### Tags
+
+```text
+"#劳动仲裁,#调岗降薪"
+
+↓ Normalize
+
+["劳动仲裁", "调岗降薪"]
+```
+
+---
+
+## 2.11 Datetime & Timezone
+
+Two different time concepts must be distinguished.
+
+### Published At
+
+When the author published the post.
+
+```text
+Source:
+Platform
+```
+
+### Collected At / Observed At
+
+When the system collected a particular observation.
+
+```text
+Source:
+System Generated
+```
+
+These timestamps serve different purposes.
+
+Example:
+
+```text
+Published At:
+2026-08-20 15:30 +08:00
+
+Observed At:
+2026-08-22 10:00 +08:00
+```
+
+Datetime data should use a clear and consistent timezone.
+
+If source platforms use different timezone formats, the system should normalize them into the system's chosen standard.
+
+---
+
+## 2.12 Duplicate Post Handling
+
+The same Post may appear under multiple Seed Keywords.
+
+Example:
+
+```text
+Keyword A
+↓
+Post 001
+
+Keyword B
+↓
+Post 001
+```
+
+The system should not create two separate Post objects.
+
+Instead:
+
+```text
+Post 001
+→ One Unique Post
+
+Keyword A → Post 001
+Keyword B → Post 001
+→ Preserve Both Relationships
+```
+
+Therefore:
+
+> Deduplication should remove duplicate Business Objects without deleting valuable search relationships.
+
+---
+
+## 2.13 Search Hit History
+
+The system should preserve historical relationships between Seed Keywords and Posts.
+
+Current logical structure:
+
+```text
+Search Hit
+├── Post ID
+├── Source Keyword
+├── Search At
+└── Search Rank
+```
+
+Purpose:
+
+- record which keyword discovered which post;
+- preserve multiple keyword-to-post relationships;
+- support future Keyword Performance analysis;
+- support Keyword Calibration;
+- observe changes in search performance over time.
+
+Example:
+
+```text
+Post 001
+
+Search Hit 1
+├── Keyword: 调岗降薪
+├── Search At: Week 1
+└── Search Rank: 1
+
+Search Hit 2
+├── Keyword: 恶意调岗
+├── Search At: Week 2
+└── Search Rank: 3
+```
+
+Search Rank should be treated as an observation signal rather than direct proof of post quality.
+
+The exact use of Search Rank in Keyword Performance scoring will be defined later.
+
+---
+
+## 2.14 Engagement History
+
+Engagement values change over time.
+
+Therefore, new engagement observations should not overwrite previous observations.
+
+Current logical structure:
+
+```text
+Engagement Observation
+├── Post ID
+├── Observed At
+├── Likes
+├── Saves
+├── Comments Count
+└── Engagement
+```
+
+Example:
+
+```text
+Post 001
+
+2026-08-22
+├── Likes: 200
+├── Saves: 100
+├── Comments: 150
+└── Engagement: 450
+
+2026-08-29
+├── Likes: 700
+├── Saves: 350
+├── Comments: 400
+└── Engagement: 1450
+```
+
+This allows later calculation of:
+
+```text
+Growth
+Growth Rate
+Trend
+Growing / Stable / Declining
+```
+
+Task A creates the initial observation.
+
+Task B adds later observations.
+
+---
+
+## 2.15 Search Hit History vs Engagement History
+
+The system currently requires two different types of history.
+
+### Search Hit History
+
+Answers:
+
+> Which keyword discovered which post, when, and at what search position?
+
+```text
+Keyword
+↓
+Search At
+↓
+Post
+↓
+Search Rank
+```
+
+Main use:
+
+```text
+Keyword Performance
+Keyword Calibration
+```
+
+### Engagement History
+
+Answers:
+
+> How did the post's engagement change over time?
+
+```text
+Post
+↓
+Observed At
+↓
+Engagement Metrics
+↓
+Trend
+```
+
+Main use:
+
+```text
+Priority Post Tracking
+Trend Detection
+Topic Trend Analysis
+```
+
+The two histories should not be treated as the same dataset.
+
+---
+
+## 2.16 Missing / Invalid Data Handling
+
+Data problems should be handled according to their cause.
+
+Current general logic:
+
+```text
+Data Problem
+↓
+Determine Reason
+↓
+├── Source genuinely has no value
+│   → Valid Empty
+│
+├── Temporary acquisition failure
+│   → Retry
+│
+├── Raw format inconsistent
+│   → Normalize
+│
+├── Current acquisition method cannot obtain full data
+│   → Alternative Method / Mark Incomplete
+│
+├── Partial content
+│   → Keep + Mark Incomplete
+│
+└── Post unavailable
+    → Mark Unavailable
+```
+
+Retry should be bounded rather than infinite.
+
+Failure reasons should be recorded where practical to support later system debugging and monitoring.
+
+---
+
+## 2.17 Task A Input Summary
+
+Current Task A input flow:
+
+```text
+Official Seed Keyword
++
+Target Platform
++
+Post Time Range
++
+Collection Limit
++
+Candidate Selection Strategy
+        ↓
+Social Media Search
+        ↓
+Raw Post Data
+        ↓
+Normalization
+        ↓
+Validation
+        ↓
+Deduplication
+        ↓
+Eligible Search Results
+        ↓
+Relevance + Engagement Evaluation
+        ↓
+Top 5 Candidate Posts
+        ↓
+Candidate Post Pool
+```
+
+At the same time:
+
+```text
+Keyword ↔ Post
+↓
+Search Hit History
+```
+
+and:
+
+```text
+Post
++
+Observed At
++
+Engagement Metrics
+↓
+Initial Engagement Observation
+```
+
+These datasets provide the foundation for later:
+
+```text
+Lawyer Review
+↓
+Deep Content & Comment Analysis
+↓
+Priority Post Tracking
+↓
+Long-tail Keyword Discovery
+↓
+Keyword Calibration
+↓
+Case Library Matching
+↓
+Candidate Topic Generation
+```
+
+---
+
+## 2.18 Inputs for Downstream Workflows
+
+Detailed Input Specifications for Tasks B–G will be progressively completed when their Process and Decision logic is analyzed.
+
+Current known upstream inputs include:
+
+| Workflow | Main Input / Dependency |
+|---|---|
+| B. Priority Post Tracking | Priority Post Pool + Post Identity + Previous Engagement History |
+| C. AI Content & Comment Analysis | Lawyer-approved Candidate Post + Enriched Comment Content |
+| D. Long-tail Keyword Discovery | Analyzed Post & Comment Library |
+| E. Seed Keyword Calibration | Keyword Library + Search Hit History + Historical Performance Data + Long-tail Candidates |
+| F. Case Library Matching | Approved Topic Pool + Case Library |
+| G. Candidate Script Topic Generation | Approved Topics + Topic Analysis + Trend Data + Case Matching Results |
+
+These are currently high-level definitions.
+
+Their detailed Fields, Validation, Decision Rules and Output Structures should be defined when each workflow reaches the corresponding analysis stage.
+
+---
+
+## 2.19 Current Input Design Decisions
+
+The MVP currently follows these principles:
+
+```text
+1. Collect minimum necessary data first.
+
+2. Deep-enrich only higher-value / lawyer-approved posts.
+
+3. Preserve Raw Engagement Data.
+
+4. Calculate Engagement as Derived Data.
+
+5. Do not overwrite historical engagement observations.
+
+6. Deduplicate Posts without losing Keyword ↔ Post relationships.
+
+7. Preserve Search Hit History for future Keyword Calibration.
+
+8. Preserve Engagement History for Trend Detection.
+
+9. Distinguish Empty, Missing, Incomplete and Unavailable data.
+
+10. Normalize external platform data before Validation.
+
+11. Use explicit Datetime and Timezone handling.
+
+12. Defer detailed technical implementation until Technology Mapping.
+```
+
+---
+
+## 2.20 Input Analysis Status
+
+```text
+Task A — Social Media Content Collection
+Input Analysis: Completed for current MVP scope
+
+Tasks B–G
+Input Analysis: High-level dependencies identified
+Detailed specifications: To be completed progressively
+```
+
+The next analysis stage for Task A is:
+
+```text
+Process Analysis
+```
+
+Core question:
+
+> How does the system transform the defined Task A inputs into Top 5 Candidate Posts in a reliable and repeatable workflow?
