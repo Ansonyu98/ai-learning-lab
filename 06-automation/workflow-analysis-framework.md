@@ -1,28 +1,49 @@
 # Workflow Analysis Framework
 
-> A reusable framework for analyzing Business Process Automation and AI Automation projects.
+> A reusable framework for Business Process Automation, AI Automation and AI Application Design.
 
-## Core Principle
+---
 
-**Business Problem → Workflow Analysis → Solution Design → Technology → Build → Test → Deliver**
+# Core Principle
+
+```text
+Business Problem
+↓
+Workflow Analysis
+↓
+Product / Solution Design
+↓
+Technology Mapping
+↓
+Implementation
+↓
+Evaluation
+↓
+Delivery & Iteration
+```
 
 核心原则：
 
 > Business Requirement First, Technology Second.
 
-不要因为会某个工具，就强行用某个工具解决所有问题。
+不要因为：
+
+- 会 n8n
+- 会 Python
+- 会某个 LLM
+- 会某个 Agent Framework
+
+就强行用它解决所有问题。
 
 ---
 
 # 0. Business Problem
 
-> 在设计 Automation Workflow 之前，先理解真实业务问题。
-
-核心原则：
-
 > Do not automate a process you do not understand.
 
-Business Problem Analysis 的目标不是马上寻找技术方案，而是先回答：
+Automation Workflow 设计之前先理解真实业务。
+
+推荐分析顺序：
 
 ```text
 Current Situation / As-Is Workflow
@@ -38,31 +59,35 @@ Automation Boundary
 Automation Goal
 ↓
 Success Metrics
+↓
+To-Be Workflow
 ```
 
 ---
 
 ## 0.1 Current Situation / As-Is Workflow
 
-> 当前业务实际上是怎么运行的？
+先描述：
 
-首先描述现有业务流程，而不是直接描述希望建设的自动化系统。
+> 当前业务实际上如何运行？
+
+而不是直接描述未来自动化系统。
 
 需要了解：
 
-- 当前业务流程是什么？
-- Workflow 从哪里开始？
-- 现在有哪些主要 Steps？
-- 每一步由谁完成？
-- 当前使用哪些工具 / 系统？
-- 数据从哪里来？
-- 数据保存在哪里？
-- 哪些步骤依赖人工操作？
-- 哪些步骤依赖人工判断？
-- 当前流程需要多长时间？
-- Workflow 最终产生什么业务结果？
+- Current Trigger
+- Main Steps
+- People / Roles
+- Tools
+- Data Sources
+- Data Storage
+- Manual Work
+- Human Decisions
+- Current Output
+- Processing Time
+- Frequency
 
-建议先画出：
+建议：
 
 ```text
 Current Trigger
@@ -76,111 +101,92 @@ Step 3
 Current Output
 ```
 
-这一阶段描述的是：
-
-> As-Is Workflow
-
-而不是未来的：
-
-> To-Be Workflow
-
 ---
 
 ## 0.2 Pain Points
 
-> 当前 Workflow 哪里存在问题？
-
-常见 Pain Points：
+常见问题：
 
 ### Repetitive Work
 
-哪些步骤需要不断重复执行？
+需要反复执行的动作。
 
 ### Time-consuming Work
 
-哪些步骤最耗时间？
+耗时但价值不高的工作。
 
 ### Error-prone Work
 
-哪些步骤容易出现人工错误？
+容易人工出错。
 
 ### Missing / Forgotten Work
 
-哪些步骤容易遗漏？
+容易遗漏。
 
 ### Inconsistent Work
 
-哪些步骤因为不同人员或不同时间执行，结果容易不一致？
+不同人、不同时间执行标准不一致。
 
 ### Scalability Problem
 
-当数据量、客户量、平台数量或业务量增加以后，哪些步骤无法继续依靠人工扩展？
+业务量增加后人工无法扩展。
 
 ### Information Retrieval Problem
 
-是否存在：
+例如：
 
-- 数据分散
-- 查找困难
-- 历史信息难以追踪
-- 依赖个人记忆
+- Data scattered
+- Search difficult
+- History unavailable
+- Human memory dependency
 
 ### Manual Decision Bottleneck
 
-哪些判断必须依赖人工？
-
-其中哪些：
+需要区分：
 
 ```text
-可以 Rule-based
-可以 AI-assisted
-必须 Human-controlled
+Rule-based
+AI-assisted
+Human-controlled
 ```
 
 ---
 
 ## 0.3 Root Causes / Constraints
 
-> Pain Point 为什么会发生？
-
-不要只记录表面问题。
+不要只记录表面 Pain Point。
 
 例如：
 
 ```text
 Pain Point:
-人工整理数据耗时
+Manual Data Processing
 
 Possible Root Causes:
-- 数据来自多个平台
-- 数据格式不统一
-- 没有统一 Database
-- 缺少自动采集
-- 缺少标准化规则
+- Multiple Data Sources
+- Inconsistent Formats
+- No Shared Data Layer
+- No Collection Automation
+- No Validation Standard
 ```
 
-分析时可以问：
+需要判断：
 
-- 是 Process 问题还是 Tool 问题？
-- 是 Data 问题还是 Human Workload 问题？
-- 是否缺少统一标准？
-- 是否缺少系统连接？
-- 是否缺少历史数据？
-- 是否存在 API / Platform 限制？
-- 是否存在 Business Rule 不明确？
-- 是否存在必须保留的人工判断？
-
-核心原则：
-
-> Automation 应解决 Root Cause，而不仅仅自动化当前低效步骤。
+- Process Problem?
+- Data Problem?
+- Tool Problem?
+- Integration Problem?
+- Human Workload?
+- Missing Standard?
+- API Limitation?
+- Business Rule unclear?
+- Professional judgment required?
 
 ---
 
-## 0.4 Automation Opportunity
+## 0.4 Automation Opportunities
 
-> 哪些 Pain Points 值得通过 Automation / AI 改善？
-
-可以优先寻找：
+优先寻找：
 
 ```text
 High Frequency
@@ -191,32 +197,32 @@ Clear Rules
 +
 High Manual Cost
 +
-Structured or Structurable Data
+Structured / Structurable Data
 ```
 
-这些通常是较好的 Automation Opportunities。
-
-同时识别 AI 更适合解决的问题：
+AI 特别适合：
 
 ```text
-Unstructured Content
-Semantic Understanding
 Classification
 Extraction
 Summarization
+Semantic Understanding
 Recommendation
 Matching
+Unstructured Content Analysis
 ```
 
-不要因为某一步可以自动化，就默认它应该自动化。
+但：
 
-需要同时考虑：
+> Technically automatable does not automatically mean it should be automated.
+
+需要综合：
 
 ```text
 Business Value
 Implementation Cost
-Risk
 Reliability
+Risk
 Human Responsibility
 ```
 
@@ -224,28 +230,24 @@ Human Responsibility
 
 ## 0.5 Automation Boundary
 
-> 哪些工作应该自动化，哪些应该由 AI 辅助，哪些必须保留人工控制？
-
-可以分为三层。
-
 ### A. Fully Automated
 
-规则明确、重复性高、风险较低，可以正常由系统自动完成。
+适合：
 
-Examples:
-
-- Data Collection
-- Data Transformation
+- Collection
+- Transformation
 - Calculation
+- Validation
 - Deduplication
-- Scheduled Tracking
-- Database Update
+- Scheduled Work
+- Data Storage
+- Standard Notifications
+
+---
 
 ### B. AI-assisted
 
-需要语义理解或复杂判断，但 AI 不一定应该拥有最终决定权。
-
-Examples:
+适合：
 
 - Classification
 - Content Analysis
@@ -253,46 +255,35 @@ Examples:
 - Recommendation
 - First-pass Review
 
-常见流程：
+常见结构：
 
 ```text
-AI Analysis
+AI
 ↓
-Recommendation
+Analysis / Recommendation
 ↓
-Human Review / Confirmation
+Human Review
 ```
+
+---
 
 ### C. Human-controlled
 
-涉及：
-
-- 高风险判断
-- 专业责任
-- 商业决策
-- 主观选择
-- 最终批准
-
-通常应该保留人工控制。
-
-Examples:
+适合：
 
 - Final Approval
-- Final Business Decision
-- High-risk Professional Judgment
-- Final Content Selection
+- Professional Judgment
+- High-risk Decisions
+- Business Decisions
+- Subjective Selection
 
-核心原则：
+核心：
 
-> Automation 的目标不是消灭 Human，而是把 Human 从低价值重复劳动中释放出来，让人工集中处理高价值判断。
+> Automation 的价值不是消灭 Human，而是让 Human 集中做高价值判断。
 
 ---
 
 ## 0.6 Automation Goal
-
-> 自动化以后，希望 Workflow 发生什么变化？
-
-Automation Goal 应直接对应 Pain Points。
 
 不要只写：
 
@@ -302,31 +293,20 @@ Use AI
 Automate Workflow
 ```
 
-应该尽量明确：
+应该明确：
 
-```text
-Reduce Manual Collection
-Reduce Repetitive Data Processing
-Improve Analysis Consistency
-Improve Tracking Capability
-Improve Information Retrieval
-Support Human Decision-making
-```
-
-需要回答：
-
-- 为什么需要 Automation？
-- 希望减少哪些 Manual Work？
-- 希望 AI 解决哪些问题？
-- 哪些问题不应该交给 AI？
-- 哪些步骤仍然需要 Human Review？
-- Automation 后理想的 To-Be Workflow 是什么？
+- Reduce Manual Collection
+- Reduce Repetitive Processing
+- Improve Consistency
+- Improve Tracking
+- Improve Retrieval
+- Support Human Decision-making
+- Improve Coverage
+- Improve Data Quality
 
 ---
 
 ## 0.7 Success Metrics
-
-> 如何证明 Automation 真的解决了 Business Problem？
 
 不要只判断：
 
@@ -334,48 +314,11 @@ Support Human Decision-making
 Workflow successfully ran
 ```
 
-而应该判断：
+还要判断：
 
 ```text
 Did the business improve?
 ```
-
-### Baseline
-
-自动化之前的当前水平。
-
-例如：
-
-```text
-Manual Processing Time:
-TBD
-
-Weekly Manual Operations:
-TBD
-```
-
-### Metric
-
-具体衡量什么？
-
-常见 Metrics：
-
-- Time Saved
-- Manual Work Reduction
-- Error Reduction
-- Accuracy
-- Processing Volume
-- Coverage
-- Response Time
-- Cost Reduction
-- Consistency
-- Adoption Rate
-- Conversion
-- Revenue Impact
-
-### Target
-
-希望改善到什么水平。
 
 结构：
 
@@ -387,49 +330,58 @@ Metric
 Target
 ```
 
-如果当前没有真实数据：
+常见指标：
 
-> 不要虚构 Target。
+- Time Saved
+- Manual Work Reduction
+- Accuracy
+- Error Rate
+- Coverage
+- Processing Volume
+- Consistency
+- Adoption Rate
+- Cost
+- Response Time
+- Revenue / Conversion if relevant
 
-可以先标记：
+没有真实数据时：
 
 ```text
 Baseline: TBD
 Target: TBD
 ```
 
-等 Workflow 实际运行以后再建立 Baseline。
+不要虚构数值。
 
 ---
 
 ## 0.8 MVP Success Criteria
 
-MVP 不一定需要证明所有长期 Business Outcomes。
+MVP 优先证明：
 
-应该优先验证：
+- Workflow 能否稳定运行？
+- 是否减少 Manual Work？
+- 数据能否可靠获取？
+- Output 是否有业务价值？
+- AI 是否达到最低可接受质量？
+- Human 是否愿意使用？
+- 是否值得继续投入？
 
-- Workflow 是否可以稳定运行？
-- 是否真正减少 Manual Work？
-- 数据是否可以稳定获取？
-- Output 是否具有实际业务价值？
-- AI Analysis 是否达到可接受水平？
-- Human 是否愿意使用结果？
-- 是否值得继续投入下一阶段？
-
-避免 MVP 一开始承担过多目标。
+避免 MVP Scope 无限扩大。
 
 ---
 
-## 0.9 Business Problem Analysis Template
+## 0.9 Business Problem Template
 
 ```text
 Business Problem:
 
-Current Situation / As-Is Workflow:
-- Current Trigger:
+Current Situation:
+- Trigger:
 - Main Steps:
 - Current Tools:
-- People Involved:
+- People:
+- Data:
 - Current Output:
 
 Pain Points:
@@ -437,7 +389,7 @@ Pain Points:
 2.
 3.
 
-Root Causes / Constraints:
+Root Causes:
 1.
 2.
 3.
@@ -463,11 +415,7 @@ Automation Goal:
 
 Success Metrics:
 
-Metric 1:
-Baseline:
-Target:
-
-Metric 2:
+Metric:
 Baseline:
 Target:
 
@@ -477,120 +425,84 @@ MVP Success Criteria:
 
 ---
 
-## 0.10 Business Problem Analysis Questions
+# 1. Trigger Analysis
 
-1. 当前业务真正是怎么运行的？
-2. Workflow 从什么业务事件开始？
-3. 当前有哪些主要步骤？
-4. 谁负责每一步？
-5. 哪些步骤最耗时间？
-6. 哪些步骤重复最多？
-7. 哪些步骤容易出错或遗漏？
-8. 哪些结果容易出现不一致？
-9. 哪些步骤无法随着业务量扩大？
-10. Pain Point 背后的 Root Cause 是什么？
-11. 哪些问题适合 Rule-based Automation？
-12. 哪些问题适合 AI-assisted？
-13. 哪些 Decision 必须 Human-controlled？
-14. Automation 真正希望改变什么？
-15. 如何衡量 Automation 是否有效？
-16. 当前 Baseline 是什么？
-17. Target 是什么？
-18. MVP 最先需要证明什么？
+> 什么真正启动 Workflow？
 
----
-
-## Business Problem Design Principle
-
-> Understand the business before designing the automation.
-
-推荐分析顺序：
+必须区分：
 
 ```text
-As-Is Workflow
+Trigger
 ↓
-Pain Points
+Upstream Dependency
 ↓
-Root Causes
+Precondition
 ↓
-Automation Opportunities
+Execution Rule
 ↓
-Automation Boundary
-↓
-Automation Goal
-↓
-Success Metrics
-↓
-To-Be Workflow
+Failure / Skip Handling
 ```
-
-Technology Selection 应发生在 Business Problem 和 Workflow Analysis 之后。
-
----
-
-# 1. Trigger
-
-> 什么情况下 Workflow 开始运行？
-
-Trigger 分析不仅要确定“什么时候启动”，还需要区分：
-
-**Trigger → Upstream Dependency → Precondition → Execution Rule → Failure / Skip Handling**
-
-这些概念不能混在一起。
 
 ---
 
 ## 1.1 Trigger Types
 
-### Event Trigger
-
-某个业务事件发生时启动。
-
-Examples:
-
-- 用户提交表单
-- 收到新邮件
-- 上传新文件
-- 创建新订单
-- 上游 Workflow 完成
-
 ### Schedule Trigger
 
-按照固定时间运行。
+固定时间执行。
 
-Examples:
+Examples：
 
-- 每天 09:00
-- 每小时
-- 每周一
-- 每月最后一天
+- Daily
+- Weekly
+- Monthly
+- Hourly
+
+---
+
+### Event Trigger
+
+业务事件发生。
+
+Examples：
+
+- New File
+- New Email
+- Record Created
+- Previous Workflow Completed
+
+---
 
 ### Manual Trigger
 
-由人工主动启动。
+人工主动操作。
 
-Examples:
+Examples：
 
-- 点击 Run
-- 点击“重新分析”
-- 人工批准后启动下一流程
+- Run
+- Approve
+- Retry
+- Re-analyze
+
+---
 
 ### Data Trigger
 
-数据发生变化或达到某个条件时启动。
+数据状态发生变化。
 
-Examples:
+Examples：
 
-- Status changed to Approved
-- Database receives a new record
-- Score crosses a threshold
-- Inventory falls below a threshold
+- Status changed
+- Score crossed threshold
+- Record became eligible
 
-### External Trigger / Webhook
+---
 
-由外部系统发送事件启动。
+### External / Webhook Trigger
 
-Examples:
+外部系统发送事件。
+
+Examples：
 
 - Webhook
 - SaaS Event
@@ -600,295 +512,179 @@ Examples:
 
 ## 1.2 Trigger
 
-> What starts the workflow?
+需要问：
 
-需要明确：
-
-- 什么事情真正启动 Workflow？
-- 谁触发？
-- Trigger Type 是什么？
-- Trigger 来源是什么？
-- 多久触发一次？
-- 是否存在多个 Trigger？
-- 是否允许重复触发？
+- What starts the workflow?
+- Who / what triggers it?
+- Frequency?
+- Multiple triggers?
+- Duplicate trigger possible?
+- Real-time or batch?
 
 ---
 
 ## 1.3 Upstream Dependency
 
-> What upstream workflow or data does this workflow depend on?
+> Workflow 需要哪些上游数据或流程结果？
 
-一个 Workflow 可以由 Schedule Trigger 启动，同时依赖其他 Workflow 已经产生的数据。
-
-Examples:
+例如：
 
 ```text
 Workflow A
 ↓
 Produces Data
 ↓
-Database
+Data Layer
 ↓
-Weekly Schedule Trigger
+Weekly Schedule
 ↓
-Workflow B reads the data
+Workflow B
 ```
 
-Workflow B 的 Trigger 仍然是 Schedule Trigger。
+Workflow B：
 
-Workflow A / Database Data 属于：
+```text
+Trigger = Weekly Schedule
+Dependency = Workflow A Data
+```
 
-**Upstream Dependency**
-
-而不是 Trigger。
-
-需要检查：
-
-- 当前 Workflow 依赖哪些上游 Workflow？
-- 上游需要产生什么数据？
-- 上游 Workflow 是否必须成功完成？
-- 是否依赖历史数据？
-- Dependency 不满足时怎么办？
+不要混淆。
 
 ---
 
 ## 1.4 Precondition
 
-> What must already be true before the workflow can proceed?
+> Trigger 发生以后，什么条件必须满足才能继续？
 
-Precondition 是 Workflow 启动后继续执行必须满足的条件。
-
-Examples:
+例如：
 
 ```text
-Schedule Trigger
-Sunday 10:00
+Schedule
 ↓
-Check Data Pool
+Check Valid Inputs
 ↓
-Pool contains valid records?
-↓
-Yes → Continue
-No → Skip
+Any Valid Records?
+├── Yes → Continue
+└── No → Skip
 ```
 
-其中：
+需要判断：
 
-```text
-Sunday 10:00
-→ Trigger
-
-Pool contains records
-→ Precondition
-```
-
-需要检查：
-
-- 是否存在有效 Input？
-- 数据量是否达到最低要求？
-- 上游数据是否已经准备完成？
-- 是否满足运行条件？
-- Precondition 不满足时是 Skip、Wait 还是 Alert？
+- Valid Input exists?
+- Upstream complete?
+- Minimum data available?
+- Eligible records exist?
 
 ---
 
 ## 1.5 Execution Rule
 
-> What rules control how the workflow runs?
+控制 Workflow 如何运行。
 
-Execution Rule 不是 Trigger。
+Examples：
 
-Examples:
+- Maximum N records
+- Only Active objects
+- Batch size
+- Time range
+- Processing frequency
+- Selection rules
 
-- 每次最多处理 4 个关键词
-- 每批最多处理 100 条记录
-- 只处理 Status = Active 的数据
-- 只处理达到最低数据完整度要求的记录
+Execution Rule：
 
-需要检查：
-
-- 每次处理多少数据？
-- 数据选择规则是什么？
-- 是否存在 Priority？
-- 是否存在 Threshold？
-- 是否需要 Batch Processing？
-- 是否存在运行频率限制？
+```text
+≠ Trigger
+```
 
 ---
 
-## 1.6 Failure / Skip Handling
-
-> What happens when the workflow cannot run normally?
-
-需要检查：
-
-- Trigger 失败怎么办？
-- Upstream Dependency 不满足怎么办？
-- Precondition 不满足怎么办？
-- 是否 Skip？
-- 是否 Wait？
-- 是否 Retry？
-- Retry 几次？
-- 是否需要补跑？
-- 是否需要通知人工？
-- 是否记录 Skip / Failure 原因？
-
----
-
-## 1.7 Trigger vs Dependency vs Precondition vs Decision
+## 1.6 Signal vs Decision
 
 必须区分：
 
-### Trigger
-
-**什么时候启动 Workflow？**
-
-Example:
-
 ```text
-Every Sunday at 10:00
+Signal
+≠
+Decision
 ```
 
-### Upstream Dependency
-
-**Workflow 依赖什么上游流程或数据？**
-
-Example:
+例如：
 
 ```text
-Analyzed Data Pool
+Metric High
+Score = 0.85
+Engagement Increased
+AI Confidence High
 ```
 
-### Precondition
-
-**Workflow 启动以后，什么条件必须成立才能继续？**
-
-Example:
+这些可以是：
 
 ```text
-Analyzed Data Pool contains valid records
+Evidence / Signal
 ```
 
-### Decision
-
-**Workflow 运行过程中，根据什么条件决定下一步？**
-
-Example:
+但只有当 Business Rule 明确规定：
 
 ```text
-Business Value Sufficient?
+Signal
 ↓
-Yes → Continue
-No → Exclude
+Rule
+↓
+Branch
 ```
 
-### Signal vs Decision
+它才真正成为 Decision Rule。
 
-A metric, score, threshold or AI output may provide evidence for a Decision without becoming the Decision itself.
+不要因为存在数字阈值就自动假设它是业务决定。
 
-Example:
+---
 
-```text
-Metric > Threshold
-→ Signal / Evidence
-```
+## 1.7 Failure / Skip Handling
 
-does not automatically mean:
+需要检查：
 
-```text
-Metric > Threshold
-→ Final Business Decision
-```
+- Trigger failure
+- Dependency unavailable
+- Precondition failed
+- Skip?
+- Wait?
+- Retry?
+- Maximum retry?
+- Recovery?
+- Human notification?
+- Failure reason stored?
+- Manual override?
 
-A threshold should become a Decision Rule only when the business requirement explicitly defines it as one.
+---
 
-Core principle:
-
-> Data Signal supports judgment.  
-> Business Rule determines whether the signal controls an action.
-
-### Execution Rule
-
-**Workflow 运行时遵守什么规则？**
-
-Example:
+## 1.8 Trigger Template
 
 ```text
-Maximum 4 items per run
+Workflow:
+
+Trigger Type:
+
+Trigger:
+
+Upstream Dependencies:
+
+Preconditions:
+
+Execution Rules:
+
+Failure / Skip Handling:
+
+Execution Mode:
+- Real-time
+- Batch
+- Scheduled Batch
+- Event-driven
+- Manual
 ```
 
 ---
 
-## 1.8 Trigger Analysis Template
-
-### Workflow Name
-
-TODO
-
-**Trigger Type:**
-
-TODO
-
-**Trigger Condition:**
-
-TODO
-
-**Upstream Dependencies:**
-
-TODO
-
-**Preconditions:**
-
-TODO
-
-**Execution Rules:**
-
-TODO
-
-**Failure / Skip Handling:**
-
-TODO
-
-**Execution Mode:**
-
-- [ ] Real-time
-- [ ] Batch Processing
-- [ ] Scheduled Batch
-- [ ] Event-driven
-- [ ] Manual
-
----
-
-## 1.9 Trigger Analysis Questions
-
-For every workflow, ask:
-
-1. What actually starts this workflow?
-2. What type of trigger is it?
-3. Does it depend on another workflow?
-4. What upstream data must already exist?
-5. What preconditions must be satisfied?
-6. What execution rules control the run?
-7. Is this real-time or batch processing?
-8. What happens if no valid data exists?
-9. What happens if the upstream workflow fails?
-10. Does the workflow need Retry or Recovery?
-11. Could duplicate execution occur?
-12. Does the workflow need Manual Override?
-13. Is a Threshold a real Decision Rule or only a Signal?
-
----
-
-## Trigger Design Principle
-
-> Dependency determines what the workflow needs before it can work.  
-> Trigger determines when the workflow starts.
-
-Do not treat every condition as a Trigger.
-
-Do not treat every Signal as a Decision.
-
-A mature workflow should clearly separate:
+## 1.9 Trigger Design Principle
 
 ```text
 Trigger
@@ -906,17 +702,16 @@ Decision
 Action
 ```
 
+> Dependency determines what the workflow needs.  
+> Trigger determines when it starts.
+
 ---
 
-# 2. Input
+# 2. Input Analysis
 
-> Workflow 被 Trigger 启动以后，需要哪些数据、参数或配置才能继续运行？
+> Workflow 启动后，需要哪些 Data / Parameter / Configuration 才能继续？
 
-Input Analysis 不只是回答：
-
-> 系统需要什么数据？
-
-还需要分析：
+完整分析链：
 
 ```text
 Source
@@ -925,20 +720,22 @@ Fields
 ↓
 Requirement
 ↓
-Data Type / Format
+Data Type
 ↓
 Normalization
 ↓
 Validation
 ↓
+Data Quality
+↓
 Missing / Invalid Handling
 ↓
 Freshness
+↓
+History
+↓
+Relationships
 ```
-
-核心目标：
-
-> 为后续 Process 提供结构清晰、格式统一、质量已知、时间明确、可以正常使用的数据。
 
 ---
 
@@ -946,457 +743,284 @@ Freshness
 
 ### User Input
 
-人工提供的数据。
+Human-provided data.
 
-Examples:
-
-- Form
-- Keyword
-- File
-- User Settings
+---
 
 ### System Input
 
-系统内部已经存在的数据。
+系统已有数据。
 
-Examples:
-
-- Database
-- Historical Data
-- Previous Results
-- User Profile
+---
 
 ### External Input
 
-外部平台、API 或其他系统提供的数据。
+External Platform / API / SaaS。
 
-Examples:
-
-- SaaS API
-- Social Media Data
-- CRM
-- Email
-- Website
+---
 
 ### Knowledge Input
 
-AI 判断需要参考的知识。
-
-Examples:
-
-- Knowledge Base
 - Documents
+- Knowledge Base
 - Case Library
 - SOP
-- Historical Examples
+- Examples
+
+---
 
 ### Configuration Input
 
-控制 Workflow 行为的参数。
+控制 Workflow 行为：
 
-Examples:
-
+- Limit
 - Threshold
 - Time Range
-- Maximum Results
-- Scoring Rules
-- Filter Rules
+- Business Scope
+- Rules
+
+---
 
 ### System-generated Input
 
-由系统自己产生的数据。
-
-Examples:
+系统产生：
 
 - Timestamp
-- Workflow Run ID
-- Calculated Status
+- Run ID
+- Status
+- Derived Data
 - Previous Workflow Output
 
 ---
 
 ## 2.2 Source
 
-> 数据从哪里来？
+明确：
 
-分析每个 Input 时首先明确 Source。
+- Who creates the data?
+- Where does it live?
+- How is it retrieved?
+- Can source be unavailable?
+- Is source owned by this system?
 
 常见 Source：
 
 ```text
 Human
-Database
 Previous Workflow
-API
+Database
 File
+API
 External Platform
-System
 AI
 Configuration
+System
 ```
-
-需要问：
-
-- 谁产生这个数据？
-- Workflow 从哪里获得？
-- 是否依赖 External System？
-- Source 不可用时怎么办？
 
 ---
 
 ## 2.3 Fields
 
-不要只定义模糊的数据对象。
+不要停留在：
 
-应该进一步拆解：
+```text
+Customer Data
+Post Data
+Order Data
+```
 
-> Workflow 实际需要哪些 Fields？
+要进一步问：
+
+```text
+Object
+├── ID
+├── Status
+├── Content
+├── Created At
+└── Fields actually needed
+```
+
+只采集真正有业务需要的数据。
+
+---
+
+## 2.4 Requirement Types
+
+### Required / Non-null
+
+必须存在且有效。
+
+### Required / Empty Allowed
+
+字段必须存在，但业务上允许为空。
+
+### Optional
+
+缺失不阻断 Workflow。
+
+### Conditional Required
+
+只有满足特定业务条件时才 Required。
 
 例如：
 
 ```text
-Business Object
-├── ID
-├── Name
-├── Status
-├── Created At
-└── Other Fields
+Condition = False
+→ Data = Not Required
+
+Condition = True
+→ Data = Required
 ```
-
-字段应该围绕后续 Process 的真实需要设计。
-
-避免：
-
-> 因为“以后可能有用”而无限采集数据。
 
 ---
 
-## 2.4 Requirement
-
-判断字段缺失以后：
-
-> Workflow 是否还能正常运行？
-
-常见类型：
-
-```text
-Required / Non-null
-Required / Empty Allowed
-Conditional Required
-Optional
-```
-
-### Required / Non-null
-
-字段必须存在，并具有有效值。
-
-### Required / Empty Allowed
-
-字段必须存在，但业务上允许没有内容。
-
-### Conditional Required
-
-字段只有在某个明确业务条件成立时才必须存在。
-
-Example:
-
-```text
-Deep Analysis Required = True
-↓
-Deep Analysis Input = Required
-```
-
-或者：
-
-```text
-Comment Analysis Required = True
-↓
-Comment Data = Required
-```
-
-当条件不成立时：
-
-```text
-Not Required
-```
-
-而不是：
-
-```text
-Missing
-```
-
-核心区别：
-
-```text
-Not Required
-≠
-Missing
-```
-
-### Optional
-
-字段缺失也不会影响 Workflow 正常运行。
-
----
-
-## 2.5 Empty vs Missing vs Not Required
+## 2.5 Empty vs Missing vs Not Required vs Unavailable
 
 必须区分：
 
 ```text
 Empty
-≠
 Missing
-≠
 Not Required
+Unavailable
 ```
 
 ### Empty
 
-字段存在，但 Source 本身没有内容。
-
-例如：
-
-```text
-tags = []
-```
+Source 本身没有内容。
 
 ### Missing
 
-理论上应该获得数据，但系统没有成功获取。
-
-例如：
-
-```text
-tags = null
-```
-
-如果数据本来存在但采集失败，则属于 Data Quality Issue。
+理论上应该获取，但没有获取成功。
 
 ### Not Required
 
-当前 Workflow 或当前业务分支根本不需要该数据。
+当前业务分支根本不要求此数据。
 
-例如：
+### Unavailable
+
+Source 当前不可访问或对象不可获得。
+
+原则：
 
 ```text
-Deep Analysis Required = False
-↓
-Deep Analysis Data = Not Required
+Not Required
+≠
+Missing
 ```
-
-因此：
-
-> 没有数据，不一定代表采集失败。
 
 ---
 
-## 2.6 Common Data Types
+## 2.6 Data Types
 
-常见 Data Types：
+常见：
 
-| Data Type | Meaning | Example |
-|---|---|---|
-| String | 文本 | `"example"` |
-| Integer | 整数 | `1250` |
-| Float / Number | 小数 / 数值 | `4.5` |
-| Boolean | 是 / 否 | `true / false` |
-| Array / List | 一组数据 | `["A", "B"]` |
-| Datetime | 日期 + 时间 | `2026-08-28 14:30` |
-| Object | 结构化对象 | `{"name": "A", "count": 10}` |
-| Enum | 只能从预设值中选择 | `Active / Inactive` |
+| Type | Example |
+|---|---|
+| String | `"abc"` |
+| Integer | `100` |
+| Float | `4.5` |
+| Boolean | `true` |
+| Array | `["A","B"]` |
+| Datetime | `2026-09-06T10:00` |
+| Object | `{...}` |
+| Enum | `Active / Retired` |
 
-注意：
+ID 即使看起来是数字，如果用于 Identity 而不是 Calculation：
 
 ```text
-"1250" → String
-1250   → Integer
+String
 ```
 
-Data Type 应根据数据未来如何被使用来决定。
-
-例如：
-
-> ID 即使由数字组成，如果主要用于识别对象而不是计算，通常可以使用 String。
+通常更合理。
 
 ---
 
 ## 2.7 Input vs Configuration vs Process vs Decision
 
-需要区分：
-
 ### Input
 
-系统需要什么。
+系统需要什么数据？
 
 ### Configuration
 
-当前参数设置是什么。
+当前规则参数是多少？
 
 ### Process
 
-系统拿到 Input 后执行什么操作。
+如何处理 Input？
 
 ### Decision
 
-系统根据什么条件决定下一步。
+根据什么选择下一步？
 
-例如：
-
-```text
-Input:
-Time Range
-
-Configuration:
-Last 7 Days
-
-Process:
-Filter Data by Time Range
-
-Decision:
-Business Rule satisfied?
-```
-
-不要把 Configuration、Process 或 Decision Rule 混进 Input 定义。
+不要混在一起。
 
 ---
 
-## 2.8 Normalization
+## 2.8 Raw Data vs Normalized Data
 
-Normalization 是：
+External Data 经常存在：
 
-> 将来源不同、格式不同的数据转换成系统统一使用的标准格式。
+- Unit differences
+- String number
+- Relative dates
+- Formatting noise
+- Hashtags
+- Inconsistent enums
 
-推荐处理顺序：
+建议：
 
 ```text
 Raw Data
 ↓
-Normalization / Transformation
+Normalize
 ↓
-Validation
+Normalized Data
 ↓
-Eligible Data
-↓
-Process
-```
-
-常见 Normalization：
-
-- String → Integer / Number
-- Relative Time → Datetime
-- String → Array
-- Trim Whitespace
-- Remove Duplicate Values
-- Remove Unnecessary Characters
-- Standardize Date Format
-- Standardize Enum Values
-- Standardize Units
-
-Example:
-
-```text
-Raw:
-"1.2万"
-
-↓ Normalize
-
-12000
-
-↓ Validate
-
-Integer
-Value >= 0
-```
-
-核心区别：
-
-> Normalization 负责统一数据；Validation 负责判断数据能不能用。
-
----
-
-## 2.9 Validation
-
-Validation 是：
-
-> 检查数据是否符合系统和业务要求。
-
-常见 Validation：
-
-### Required Validation
-
-```text
-Value != null
-Value != ""
-```
-
-### Data Type Validation
-
-```text
-String
-Integer
-Array<String>
-Datetime
-```
-
-### Format Validation
-
-例如：
-
-```text
-ID Format
-URL Format
-Email Format
-Datetime Format
-```
-
-### Value Range Validation
-
-例如：
-
-```text
-Value >= 0
-```
-
-### Allowed Value Validation
-
-例如：
-
-```text
-Status ∈ [Active, Inactive, Retired]
-```
-
-### Existence / Availability Validation
-
-检查数据指向的真实对象是否存在或可以访问。
-
-### Cross-field Validation
-
-一个 Field 是否正确，需要结合其他 Field 判断。
-
-### Completeness Validation
-
-数据存在不代表数据完整。
-
-需要判断：
-
-```text
-Is the data complete enough for downstream processing?
+Validate
 ```
 
 ---
 
-## 2.10 Data Quality Status
+## 2.9 Normalization
 
-真实系统不应该只有：
+常见：
 
 ```text
-Valid
-Invalid
+Trim
+Case normalization
+Unit conversion
+Datetime conversion
+Enum mapping
+Number parsing
+Array deduplication
 ```
 
-可以进一步区分：
+原则：
+
+> 如果 Validation 依赖统一格式，先 Normalize 再 Validate。
+
+---
+
+## 2.10 Validation
+
+Validation 可以包括：
+
+- Required validation
+- Type validation
+- Format validation
+- Range validation
+- Allowed value validation
+- Existence validation
+- Cross-field validation
+- Completeness validation
+
+---
+
+## 2.11 Data Quality
+
+推荐概念：
 
 ```text
 Valid
@@ -1409,306 +1033,147 @@ Not Required
 
 ### Valid
 
-数据符合要求，可以正常使用。
+可正常使用。
 
 ### Incomplete
 
-数据已经获得，但不完整。
-
-原则：
-
-> Incomplete Data ≠ No Business Value.
-
-是否继续使用，应根据业务价值判断。
+部分数据存在，但不足。
 
 ### Missing
 
-应该存在的数据没有成功获得。
+应有但未获得。
 
 ### Invalid
 
-数据存在，但违反格式或业务规则。
+格式或内容不合法。
 
 ### Unavailable
 
-原始 Business Object 已经无法访问。
-
-Examples:
-
-- Deleted
-- Private
-- Access Restricted
-- No Longer Exists
+外部对象或 Source 当前不可访问。
 
 ### Not Required
 
-当前 Workflow 或当前业务分支不需要该数据。
-
-原则：
-
-> Not Required 不是错误状态。
+当前分支不需要。
 
 ---
 
-## 2.11 Missing / Invalid Handling
+## 2.12 Missing / Invalid Handling
 
-发现数据问题以后，不应该机械执行：
-
-```text
-Invalid
-↓
-Delete
-```
-
-应该先判断原因：
+不要统一处理为：
 
 ```text
-Missing / Incomplete / Invalid
-            ↓
-      Determine Reason
-            ↓
-├── Source 本身没有数据
-│   → Valid Empty
-│
-├── Current Branch does not require data
-│   → Not Required
-│
-├── Temporary Error
-│   → Retry
-│
-├── Format 不统一
-│   → Normalize / Transform
-│
-├── Current Method 无法获取完整数据
-│   → Alternative Source / Method
-│
-├── Partial Data
-│   → Keep + Mark Incomplete
-│
-├── Invalid Data
-│   → Reject / Skip / Manual Review
-│
-└── Source Object 无法访问
-    → Mark Unavailable
+error
 ```
 
-核心原则：
+应该按原因：
 
-> Missing Data Handling 应根据 Failure Reason 决定，而不是所有异常都使用同一种处理方式。
+```text
+Valid Empty
+→ Continue
+
+Temporary Failure
+→ Retry
+
+Format Issue
+→ Normalize
+
+Alternative Source Exists
+→ Fallback
+
+Incomplete but usable
+→ Continue with Quality Flag
+
+Critical Missing
+→ Skip / Reject / Human Review
+
+Unavailable
+→ Record Reason
+```
+
+Retry 必须：
+
+```text
+Bounded
+```
+
+不要无限 Retry。
 
 ---
 
-## 2.12 Retry & Failure Reason
+## 2.13 Freshness
 
-临时错误可以 Retry。
+需要问：
 
-Examples:
+- Data current enough?
+- Last updated?
+- Time-sensitive?
+- Timezone?
+- Current state or historical observation?
 
-- Network Timeout
-- API Timeout
-- Temporary Service Error
-- Rate Limit
-
-基本逻辑：
-
-```text
-Attempt
-↓
-Failed
-↓
-Retry
-↓
-Retry Limit Reached?
-├── No → Retry
-└── Yes → Stop + Record Failure
-```
-
-原则：
-
-> Retry 必须存在上限，不能无限执行。
-
-同时应该尽可能记录 Failure Reason：
+Datetime 应尽量明确：
 
 ```text
-Network Error
-API Error
-Timeout
-Rate Limit
-Parsing Error
-Permission Error
-Source Unavailable
-Unknown
+Timestamp
++
+Timezone
 ```
-
-Failure Reason 可以帮助后续定位和优化 Workflow。
 
 ---
 
-## 2.13 Data Freshness
+## 2.14 Current State vs Historical Observation
 
-数据不仅需要正确，还需要知道：
+某些数据会随时间变化。
 
-> 这个数据是什么时候产生、采集或更新的？
-
-常见字段：
+不要一直覆盖：
 
 ```text
-Created At
-Published At
-Collected At
-Updated At
-Analyzed At
-Tracked At
+Current Value
 ```
 
-需要区分：
-
-```text
-Source Time
-≠
-System Collection Time
-```
-
-Freshness Analysis 可以问：
-
-- When was the data generated?
-- When was it collected?
-- When was it last updated?
-- Is it still fresh enough for this Workflow?
-
----
-
-## 2.14 Timezone
-
-Datetime 数据需要考虑 Timezone。
-
-不同 Source 可能使用：
-
-```text
-UTC
-UTC+8
-Local Time
-```
-
-跨系统 Workflow 应明确：
-
-- Source Timezone
-- System Timezone
-- 是否需要统一转换
-- 最终保存的标准
-
-核心原则：
-
-> Datetime 不只是日期和时间，还需要明确 Timezone。
-
----
-
-## 2.15 Current State vs History
-
-需要区分：
-
-```text
-Current State
-```
-
-和：
-
-```text
-History
-```
-
-Current State 回答：
-
-> 现在是什么？
-
-History 回答：
-
-> 它是怎么变化的？
-
-例如：
-
-```text
-Week 1 = 20
-Week 2 = 50
-Week 3 = 100
-```
-
-才能进行 Trend Analysis。
-
-如果 Workflow 未来需要：
-
-- Trend Analysis
-- Performance Analysis
-- State Change Analysis
-
-就需要考虑 Historical Observation，而不是只覆盖保存最新值。
-
----
-
-## 2.16 Historical Observation
-
-通用结构：
-
-```text
-Observation
-├── Object ID
-├── Observed At
-└── Observed Values
-```
-
-例如：
+可能需要：
 
 ```text
 Object
 ↓
-Observation 1
-↓
-Observation 2
-↓
-Observation 3
-↓
-Trend Analysis
+Observation T1
+Observation T2
+Observation T3
 ```
 
-是否保存 History 应根据业务价值决定。
+用于：
+
+- Trend
+- Audit
+- Evaluation
+- Historical Comparison
 
 ---
 
-## 2.17 Raw Data vs Derived Data
-
-### Raw Data
-
-从 Source 直接获得的数据。
-
-### Derived Data
-
-通过 Raw Data 计算、转换或推导得到的数据。
+## 2.15 Raw Data vs Derived Data
 
 例如：
 
 ```text
-Raw Data
-├── Value A
-├── Value B
-└── Value C
+Raw:
+A
+B
+C
 
-Derived Data
-└── Total = A + B + C
+Derived:
+Total = A + B + C
 ```
 
 原则：
 
 > 重要 Raw Data 与 Derived Data 尽量分开保存。
 
-这样未来计算逻辑发生变化时，仍然可以重新计算。
+以后计算规则变化时可以重新计算。
 
 ---
 
-## 2.18 Data Relationship
+## 2.16 Data Relationships
 
-除了分析单个 Field，还需要考虑 Business Objects 之间的 Relationship。
-
-常见关系：
+Business Objects 之间可能：
 
 ```text
 One-to-One
@@ -1716,24 +1181,18 @@ One-to-Many
 Many-to-Many
 ```
 
-当同一个 Business Object 可能通过多个：
+需要问：
 
-- Sources
-- Keywords
-- Workflows
-- Conditions
-
-被发现时，需要考虑是否应该保存这些 Relationships。
+- Object 被哪些 Source 发现？
+- 一个 Object 是否属于多个 Categories？
+- 一个 Event 是否关联多个 Objects？
+- Downstream 是否需要追溯 Origin？
 
 ---
 
-## 2.19 Deduplication vs Relationship Preservation
+## 2.17 Deduplication vs Relationship Preservation
 
-Deduplication 的目标是：
-
-> 避免同一个 Business Object 被重复创建。
-
-但：
+核心：
 
 ```text
 Duplicate Object
@@ -1752,66 +1211,446 @@ Source B → Object 001
 
 ```text
 Object 001
-→ Only One Object
-
-Source A → Object 001
-Source B → Object 001
-→ Preserve Relationships
+only once
 ```
 
-因此：
+但仍然保留：
 
-> 去重时不仅要考虑哪些 Object 不应该重复，还要考虑哪些有价值的 Relationship 必须保留。
+```text
+Source A → Object 001
+Source B → Object 001
+```
+
+原则：
+
+> Deduplicate Entity, preserve meaningful Relationships.
 
 ---
 
-## 2.20 Progressive Data Enrichment
+## 2.18 Progressive Data Enrichment
 
-不是所有数据都必须在 Workflow 第一阶段全部获取。
+不是所有数据都应该第一步采集。
 
-可以采用：
-
-> Progressive Data Enrichment
-
-流程：
+可以：
 
 ```text
-Collect Minimum Required Data
+Collect Minimum Data
 ↓
 Initial Screening
 ↓
-Determine Business Value
+Business Value Decision
 ↓
-Collect Additional / Expensive Data
+Collect More Expensive / Deeper Data
 ↓
-Deep Processing / Analysis
+Deep Analysis
 ```
 
 适用于：
 
-- API 调用有成本
-- Data Collection 成本较高
-- AI Token 成本较高
-- 深度数据量很大
-- 只有部分 Business Objects 值得进一步分析
+- API cost
+- AI token cost
+- Large data volume
+- Expensive scraping
+- Only a subset deserves deep processing
 
 原则：
 
-> 先以最低必要成本判断 Business Value，再为高价值对象补充更深的数据。
+> Minimum necessary data first, deeper enrichment only when justified.
 
 ---
 
-## 2.21 Input Specification
+# 2.19 Persistent Entity vs Event vs State vs Decision
 
-完成 Input Analysis 后，可以整理成 Input Specification。
+这是跨 Workflow Data Design 中非常重要的区分。
 
-通用表格：
+## Entity
 
-| Field | Source | Data Type | Requirement | Normalization | Validation | Missing / Invalid Handling | Freshness |
+长期存在的 Business Object。
+
+Examples：
+
+```text
+Customer
+Post
+Product
+Case
+Order
+```
+
+---
+
+## Event / Observation
+
+某个时间点发生的事实。
+
+Examples：
+
+```text
+Search Hit
+Status Changed
+Engagement Observation
+Payment Event
+```
+
+---
+
+## State
+
+当前业务状态。
+
+Examples：
+
+```text
+Confirmed
+Active
+Pending
+Archived
+```
+
+---
+
+## Decision
+
+Human / System 做出的判断。
+
+Examples：
+
+```text
+Approve
+Reject
+Keep
+Escalate
+```
+
+原则：
+
+```text
+Entity
+≠
+Event
+≠
+State
+≠
+Decision
+```
+
+不要为了方便全部塞进一个 Object。
+
+---
+
+# 2.20 History: Append vs Overwrite
+
+当数据本身具有审计、趋势或决策价值时：
+
+优先：
+
+```text
+Append New Record
+```
+
+而不是：
+
+```text
+Overwrite Old Value
+```
+
+尤其适用于：
+
+- Observations
+- Decisions
+- Status changes
+- Search events
+- Attempts
+- Recommendations
+
+例如：
+
+```text
+Decision at T1 = No
+Decision at T2 = Yes
+```
+
+两者可能都需要保留。
+
+因为：
+
+> New Evidence can legitimately change an earlier Decision.
+
+---
+
+# 2.21 Human Decision Is Data
+
+Human-in-the-loop 不只是 UI 动作。
+
+每一个 Human Decision 都可能成为：
+
+- Audit Data
+- Evaluation Data
+- Training / Feedback Data
+- Calibration Evidence
+- Product Usage Evidence
+
+因此需要考虑：
+
+```text
+Decision ID
+Target
+Decision Type
+Decision Value
+Decided At
+Decision Context
+```
+
+而不是只保存最终状态。
+
+---
+
+# 2.22 Shared Data Objects
+
+多个 downstream workflows 如果都需要同一个经过处理的业务概念：
+
+不应该：
+
+```text
+Workflow B re-analyzes
+Workflow C re-analyzes
+Workflow D re-analyzes
+```
+
+更合理：
+
+```text
+Upstream
+↓
+Shared Structured Object
+↓
+├── Workflow B
+├── Workflow C
+└── Workflow D
+```
+
+好处：
+
+- Reduce duplicated AI calls
+- Lower cost
+- Improve consistency
+- Reduce semantic drift
+- Simplify interfaces
+
+---
+
+# 2.23 Data Contract
+
+Data Contract 回答：
+
+> Workflow A 输出的 Object，Workflow B 到底如何理解和消费？
+
+至少需要明确：
+
+```text
+Object Name
+Owner / Creator
+Fields
+Required / Optional
+Identity
+History Rule
+Relationships
+Consumers
+Quality Requirement
+```
+
+---
+
+## Data Contract Template
+
+```text
+Object:
+
+Type:
+- Entity
+- Event
+- Observation
+- State
+- Decision
+- Relationship
+- Configuration
+
+Owner / Creator:
+
+Identity:
+
+Fields:
+-
+
+Required:
+-
+
+Optional:
+-
+
+History:
+- Append / Overwrite / Snapshot
+
+Relationships:
+-
+
+Consumers:
+-
+
+Data Quality Requirement:
+-
+
+Notes:
+-
+```
+
+---
+
+# 2.24 Cross-workflow Input Review
+
+单个 Workflow 的 Input 都完成后，不代表整个系统没有问题。
+
+需要横向 Review：
+
+```text
+Workflow A
+↓
+Workflow B
+↓
+Workflow C
+↓
+...
+```
+
+检查：
+
+### 1. Downstream Requirement
+
+下游需要的数据：
+
+```text
+Upstream really produces it?
+```
+
+---
+
+### 2. Duplicate Concepts
+
+是否多个 Workflow 在重复产生同一个概念？
+
+---
+
+### 3. State Consistency
+
+同一个 Status / State 在不同 Workflow 是否含义一致？
+
+---
+
+### 4. Relationship Continuity
+
+Upstream relationship 是否被 Dedup / Transform 时丢失？
+
+---
+
+### 5. History Continuity
+
+Observation / Decision history 是否能够跨 Workflow 追溯？
+
+---
+
+### 6. Optional Context
+
+某个 Optional Input 是否被错误设计成 Mandatory Gate？
+
+---
+
+### 7. External Dependencies
+
+哪些数据：
+
+```text
+Owned by this system
+```
+
+哪些：
+
+```text
+External / Upstream Dependency
+```
+
+边界是否明确？
+
+---
+
+# 2.25 Downstream-to-Upstream Contract Validation
+
+Cross-workflow Review 非常重要的一种方法：
+
+```text
+Downstream Requirement
+↓
+Reverse Check
+↓
+Upstream Output Contract
+```
+
+例如：
+
+```text
+Three downstream workflows
+all require Field X
+↓
+Field X should probably become
+a stable upstream output field
+```
+
+原则：
+
+> Output design should not only be based on what the upstream can generate; it should also be validated by what downstream workflows genuinely need.
+
+---
+
+# 2.26 Optional Context Must Not Accidentally Become a Gate
+
+假设 Workflow 可以靠 Core Input 正常运行。
+
+额外数据只是：
+
+```text
+Enhancement
+```
+
+则：
+
+```text
+Optional Data Missing
+```
+
+不能导致：
+
+```text
+Workflow blocked
+```
+
+需要明确：
+
+```text
+Core Required Inputs
+vs
+Optional Context
+```
+
+---
+
+# 2.27 Input Specification
+
+最终可以形成：
+
+| Field | Source | Type | Requirement | Normalization | Validation | Failure Handling | Freshness |
 |---|---|---|---|---|---|---|---|
 | | | | | | | | |
 
-也可以使用：
+或：
 
 ```text
 Field:
@@ -1823,15 +1662,14 @@ Data Type:
 Requirement:
 - Required / Non-null
 - Required / Empty Allowed
-- Conditional Required
 - Optional
-
-Condition:
-- If applicable
+- Conditional Required
 
 Normalization:
 
 Validation:
+
+Data Quality:
 
 Missing / Invalid Handling:
 
@@ -1846,65 +1684,101 @@ History:
 Relationship:
 ```
 
-Input Specification 的目的不是制造文档，而是：
+---
 
-> 让后续 Implementation 清楚知道系统需要什么数据，以及什么样的数据才可以被使用。
+# 2.28 Input Analysis Questions
+
+每个 Workflow 检查：
+
+1. Workflow 需要什么数据？
+2. Source 是什么？
+3. 需要哪些 Fields？
+4. Required / Optional / Conditional Required？
+5. Empty 是否有效？
+6. Not Required 是否被误认为 Missing？
+7. Data Type？
+8. 是否需要 Normalize？
+9. Validation？
+10. Data Quality？
+11. Missing / Invalid 如何处理？
+12. Retry 是否 bounded？
+13. Freshness？
+14. Timezone？
+15. Current State or History？
+16. Raw vs Derived？
+17. Relationships？
+18. Deduplication 是否丢关系？
+19. 是否能 Progressive Enrichment？
+20. Entity / Event / State / Decision 是否混淆？
+21. 哪些数据应该 Append？
+22. Human Decision 是否被保存？
+23. 是否存在 Shared Structured Object？
+24. Downstream 是否需要上游没有的字段？
+25. Optional Context 是否错误变成 Gate？
+26. External Dependency Boundary 是否清晰？
+27. 是否完成 Data Contract Review？
 
 ---
 
-## 2.22 Input Analysis Questions
+# 2.29 Input Completion Criteria
 
-For every workflow, ask:
+Input Analysis 可以标记：
 
-1. Workflow 需要什么数据才能运行？
-2. 每个 Input 来自哪里？
-3. 需要哪些具体 Fields？
-4. 哪些 Required？哪些 Optional？
-5. 是否存在 Conditional Required？
-6. Empty 是否允许？
-7. Not Required 是否与 Missing 区分？
-8. 每个 Field 的 Data Type 是什么？
-9. Raw Data 是否需要 Normalization？
-10. Normalized Data 应满足什么 Validation？
-11. 数据是否完整？
-12. Missing / Invalid / Incomplete 时怎么办？
-13. 是否需要 Retry？
-14. 是否需要记录 Failure Reason？
-15. 数据是否存在 Freshness 要求？
-16. Datetime 是否需要考虑 Timezone？
-17. 是否需要 Current State 还是 Historical Data？
-18. 哪些是 Raw Data？哪些是 Derived Data？
-19. Business Objects 之间是否存在 Relationship？
-20. Deduplication 是否会导致 Relationship 丢失？
-21. 是否可以通过 Progressive Data Enrichment 降低成本？
-22. 是否已经形成清晰的 Input Specification？
+```text
+Completed for Current MVP v1
+```
+
+当：
+
+- A–Z Workflow inputs defined
+- Required / Optional known
+- Data quality concepts known
+- Critical relationships preserved
+- Historical requirements known
+- Cross-workflow gaps reviewed
+- Data Contracts reviewed
+- Remaining unknowns clearly marked TBD
+
+但：
+
+> Completed does not mean permanently frozen.
+
+真实设计过程中：
+
+```text
+Input v1
+↓
+Process reveals missing requirement
+↓
+Input v1.1
+```
+
+是正常迭代。
 
 ---
 
-## Input Design Principle
+# Input Design Principle
 
-Input Analysis 不只是：
-
-> What data do we need?
-
-而应该完整考虑：
+完整 Input 思考：
 
 ```text
 What Data?
 ↓
 From Where?
 ↓
-What Fields?
+Which Fields?
 ↓
-What Data Type?
+Required?
 ↓
-Required Under What Condition?
+What Type?
 ↓
 Normalize?
 ↓
 Valid?
 ↓
 Complete?
+↓
+What Quality?
 ↓
 If Not, What Happens?
 ↓
@@ -1914,103 +1788,108 @@ Need History?
 ↓
 Need Relationships?
 ↓
-How Much Data Do We Really Need Now?
-```
-
-最终：
-
-```text
-Good Input
-=
-Correct Structure
-+
-Consistent Format
-+
-Valid Data
-+
-Known Quality
-+
-Known Time
-+
-Traceable History
-+
-Preserved Relationships
+Entity / Event / State / Decision?
+↓
+Shared Object?
+↓
+Data Contract?
+↓
+Cross-workflow Compatible?
 ```
 
 ---
 
-# 3. Process
+# 3. Process Analysis
 
-> Input 进入系统后，需要经历哪些处理？
+> Valid Inputs 进入 Workflow 后，如何一步步变成中间结果？
 
-## Common Process Types
+Process 回答：
 
-### Collect
+```text
+What happens to the data?
+```
 
-采集数据。
+而不是：
 
-### Normalize
+```text
+What condition decides the branch?
+```
 
-统一不同 Source 的数据格式。
+后者属于 Decision。
+
+---
+
+## 3.1 Process Boundary
+
+每个 Workflow 必须定义：
+
+```text
+Start Boundary
+↓
+Process
+↓
+End Boundary
+```
+
+例如：
+
+```text
+Valid Inputs Ready
+↓
+...
+↓
+Processed Result Stored
+```
+
+---
+
+## 3.2 Common Process Types
+
+### Collect / Retrieve
+
+获取数据。
+
+### Normalize / Transform
+
+统一格式。
 
 ### Validate
 
-检查标准化后的数据是否完整、合法、可用。
+检查可用性。
 
-### Clean
+### Clean / Filter
 
-处理无效、异常或不需要的数据。
+清理无效数据。
 
 ### Deduplicate
 
-避免重复创建 Business Object。
-
-### Transform
-
-转换数据结构。
+去重。
 
 ### Enrich
 
-补充额外数据。
+补充数据。
 
 ### Analyze
 
-分析数据。
+AI / Rule-based Analysis。
 
 ### Aggregate
 
-汇总数据。
+统计和聚合。
 
 ### Store
 
-保存结果。
+保存。
+
+### Deliver
+
+发送结果。
 
 ---
 
-## Process Questions
+## 3.3 Recommended Generic Processing Order
 
-- 数据首先需要做什么？
-- 是否需要 Normalize？
-- 哪些 Validation 依赖 Normalize 后的数据？
-- 是否需要 Clean？
-- 如何 Deduplicate？
-- 是否需要 Transform？
-- 是否需要计算新的字段？
-- 是否需要调用外部 API？
-- 哪些步骤需要 AI？
-- 哪些步骤只需要普通程序？
-- 是否需要保存中间结果？
-- Process 是否存在顺序依赖？
-- 每一步失败怎么办？
-- 是否存在 Loop / Batch？
-- 是否需要 Idempotency？
-- 是否需要保存 Workflow State？
-
----
-
-## Generic Process Flow
-
-推荐概念顺序：
+不要求所有项目完全一样，但常见：
 
 ```text
 Raw Input
@@ -2036,9 +1915,7 @@ Store
 
 注意：
 
-> Exact Process order may vary by workflow.
-
-但如果 Validation 依赖统一后的数值、时间、Enum 或格式：
+如果 Validation 必须依赖 Normalized Format：
 
 ```text
 Normalize
@@ -2046,683 +1923,632 @@ Normalize
 Validate
 ```
 
-通常比：
+---
+
+## 3.4 Loop / Batch
+
+需要明确：
+
+- One-by-one?
+- Batch?
+- Nested loops?
+- Batch size?
+- Parallel?
+- Sequential?
+- Maximum records?
+
+不要让 Loop 隐含存在。
+
+---
+
+## 3.5 State & Persistence
+
+Process 中需要问：
+
+- What is persisted?
+- When?
+- Before or after external call?
+- Intermediate state needed?
+- Resume from failure?
+- Duplicate execution possible?
+
+---
+
+## 3.6 External Calls
+
+涉及：
+
+- API
+- LLM
+- Database
+- SaaS
+- Webhook
+- File system
+
+需要设计：
 
 ```text
+Call
+↓
+Response
+↓
 Validate
 ↓
-Normalize
-```
-
-更合理。
-
----
-
-## Actual Project Process
-
-```text
-TODO
-```
-
----
-
-# 4. Decision
-
-> Workflow 中需要做哪些判断？
-
-核心问题：
-
-**这个判断应该由 Rule、AI、Hybrid，还是 Human 完成？**
-
----
-
-## Decision Types
-
-### Rule-based Decision
-
-适用于存在明确规则、公式、条件或阈值的判断。
-
-Examples:
-
-```text
-score > 80
-price < 100
-status == "active"
-```
-
-注意：
-
-> Threshold 存在，并不代表 Threshold 一定就是最终 Business Decision。
-
-首先确认 Business Requirement。
-
----
-
-### AI-based Decision
-
-适用于需要语义理解、上下文理解或处理非结构化内容的判断。
-
-Examples:
-
-- 这篇内容主要讨论什么？
-- 这封邮件是什么意图？
-- 两篇内容是否讨论同一个问题？
-- 这条内容与业务是否相关？
-
----
-
-### Hybrid Decision
-
-Rule + AI 共同判断。
-
-Example:
-
-```text
-Rule Filter
+Failure?
 ↓
-AI Analysis
-↓
-Business Decision
+Retry / Fallback / Skip
 ```
 
 ---
 
-### Human Decision
+## 3.7 Idempotency
 
-风险高、主观性强或必须由人承担最终责任的判断。
+> Same valid request accidentally runs twice. What happens?
 
-Examples:
-
-- 最终是否发布
-- 是否批准
-- 是否接受 AI 建议
-- 是否涉及业务风险
-
----
-
-## Signal vs Decision
-
-Decision Analysis 需要明确区分：
+理想情况：
 
 ```text
-Signal
+No duplicate business object
+No duplicate irreversible action
+```
+
+需要区分：
+
+```text
+Valid new historical event
 ```
 
 与：
 
 ```text
-Decision
+Accidental duplicate
 ```
 
-例如：
+---
+
+## 3.8 Error Path
+
+不要只画 Happy Path。
+
+至少考虑：
+
+- External failure
+- Invalid response
+- Partial data
+- Timeout
+- Empty result
+- Duplicate execution
+- AI failure
+- Storage failure
+
+---
+
+## 3.9 Observability
+
+后续应该知道：
+
+- Run started?
+- Run completed?
+- Records processed?
+- Records failed?
+- Error reason?
+- Retry count?
+- Last successful run?
+
+---
+
+## 3.10 Process Analysis Template
 
 ```text
-High Score
-High Engagement
-High Confidence
-Rapid Growth
+Workflow:
+
+Goal:
+
+Start Boundary:
+
+End Boundary:
+
+Main Steps:
+1.
+2.
+3.
+
+Loops:
+-
+
+Transformations:
+-
+
+External Calls:
+-
+
+Persistence:
+-
+
+Idempotency:
+-
+
+Failure Paths:
+-
+
+Observability:
+-
 ```
 
-都可能只是：
+---
+
+# 4. Decision Analysis
+
+> 根据什么证据和规则决定下一步？
+
+需要分清：
 
 ```text
-Evidence / Signal
-```
-
-只有当真实 Business Rule 明确规定：
-
-```text
-Signal
+Input
 ↓
-Automatically Controls Action
+Process
+↓
+Signal / Evidence
+↓
+Decision Rule
+↓
+Branch
 ```
 
-它才成为 Rule-based Decision。
+---
 
-核心原则：
+## 4.1 Rule-based Decision
 
-> Do not turn every metric into a business rule.
+清晰业务规则。
+
+```text
+Condition
+↓
+Yes / No
+```
 
 ---
 
-## Decision Questions
+## 4.2 Score-based Decision
 
-- 要判断什么？
-- 判断依据是什么？
-- Rule / AI / Hybrid / Human？
-- 是否存在明确 Threshold？
-- Threshold 是 Signal 还是 Business Rule？
-- AI 是否需要输出 Confidence？
-- Confidence 太低怎么办？
-- 是否存在 Edge Case？
-- 是否允许人工 Override？
-- 是否需要记录判断理由？
-- 判断错误会产生什么后果？
+多个 Signals 综合评分。
+
+不要在没有真实业务依据时随意发明权重。
 
 ---
 
-## Decision Table
+## 4.3 AI-assisted Decision
 
-| Decision | Type | Criteria | Threshold / Confidence | Fallback |
-|---|---|---|---|---|
-| | | | | |
+AI 提供：
 
----
+```text
+Classification
+Recommendation
+Confidence
+Reasoning Summary
+```
 
-# 5. Action
-
-> Decision 完成以后，系统真正执行什么？
-
-## Action Types
-
-### Data Action
-
-- Create
-- Update
-- Delete
-- Tag
-- Store
-
-### Communication Action
-
-- Email
-- SMS
-- Slack
-- Feishu
-- Notification
-
-### System Action
-
-- API Call
-- Start Workflow
-- Generate File
-- Update SaaS
-
-### AI Action
-
-- Summarize
-- Classify
-- Extract
-- Generate
-- Recommend
-
-### Human Action
-
-- Review
-- Approve
-- Edit
-- Reject
-- Escalate
+Human 保留最终决定。
 
 ---
 
-## Action Questions
+## 4.4 Human-controlled Decision
 
-- 谁执行 Action？
-- 对哪个系统执行？
-- Action 的 Input 是什么？
-- 需要什么权限？
-- 成功标准是什么？
-- 失败怎么办？
-- 是否需要 Retry？
-- Retry 几次？
-- 是否可能重复执行？
-- 如何避免 Duplicate Action？
-- 是否需要 Rollback？
-- 是否需要通知人工？
-- 是否需要记录 Action Log？
+高风险 / 商业 / 专业判断。
+
+需要明确：
+
+- Who decides?
+- What evidence is shown?
+- Where?
+- What options?
+- What happens after decision?
 
 ---
 
-## Action Table
+## 4.5 Evidence Sufficiency
 
-| Action | Type | Target | Success Condition | Failure Handling |
-|---|---|---|---|---|
-| | | | | |
+非常重要：
+
+```text
+Poor Result
+≠
+Sufficient Evidence of Poor Performance
+```
+
+需要区分：
+
+```text
+Decision Value
+```
+
+和：
+
+```text
+Evidence Sufficiency
+```
+
+样本不足时：
+
+```text
+Insufficient Evidence
+```
+
+往往比强制 Yes / No 更合理。
 
 ---
 
-# 6. Output
+## 4.6 Re-evaluation
+
+Business Decision 不一定永久。
+
+```text
+Decision at T1
+↓
+New Evidence
+↓
+Re-evaluation
+↓
+Decision at T2
+```
+
+历史 Decision 仍应保留。
+
+---
+
+# 5. Action Analysis
+
+> Decision 之后系统具体执行什么？
+
+常见 Action：
+
+- Save
+- Update State
+- Create Queue Item
+- Call API
+- Send Message
+- Request Human Approval
+- Trigger Workflow
+- Archive
+- Retry
+- Alert
+- Stop
+
+需要区分：
+
+```text
+Decision:
+Should we proceed?
+
+Action:
+Create a task and send it to the next system.
+```
+
+---
+
+# 6. Output Analysis
 
 > Workflow 最终产生什么？
 
-## Output Types
-
-### Business Output
-
-业务人员真正需要的结果。
-
-Examples:
-
-- Report
-- Recommendation
-- Qualified Lead
-- Content Topics
+Output 可以包括：
 
 ### Data Output
 
-系统产生的数据。
+Structured Data。
 
-Examples:
+### Human-readable Output
 
-- Score
-- Database Record
-- Classification Result
-- Trend Data
+Report / Summary / Dashboard。
 
 ### System Output
 
-提供给其他系统的数据。
+State change / Queue / Event。
 
-Examples:
+### AI Output
+
+Classification / Analysis / Recommendation。
+
+---
+
+## 6.1 Output Contract
+
+需要问：
+
+- Who consumes this output?
+- Required fields?
+- Structured?
+- Human readable?
+- Evidence included?
+- Need source traceability?
+- Need quality flag?
+- Can downstream reuse directly?
+
+---
+
+## 6.2 Explainability / Evidence
+
+Recommendation 类 Output 尤其需要：
+
+```text
+Recommendation
++
+Why
++
+Source Evidence
+```
+
+避免纯黑盒。
+
+---
+
+## 6.3 Product Output
+
+当 Output 需要 Human 使用时，再考虑：
+
+- User Flow
+- Feishu / Web / App / Email
+- Interactive Action
+- Information hierarchy
+- Acceptance Criteria
+- Prototype
+
+不要在 Business Analysis 阶段提前锁 UI 技术。
+
+---
+
+# 7. Technology Mapping
+
+Technology Mapping 应发生在 Workflow 逻辑相对稳定以后。
+
+推荐顺序：
+
+```text
+Business Requirement
+↓
+Data Requirement
+↓
+Workflow Requirement
+↓
+Technical Requirement
+↓
+Technology Selection
+```
+
+常见能力：
 
 - JSON
-- API Response
+- HTTP
+- REST API
+- Authentication
 - Webhook
-- CSV
-
-### Operational Output
-
-用于系统运行和维护的数据。
-
-Examples:
-
-- Run Log
-- Error Log
-- Execution Time
-- API Usage
-
----
-
-## Output Questions
-
-- 谁使用这个 Output？
-- Output 用来做什么？
-- 输出格式是什么？
-- 输出到哪里？
-- 多久输出一次？
-- 是否需要排序？
-- 是否需要筛选？
-- 是否需要保存历史？
-- 是否可以追溯来源？
-- 是否需要 Evidence？
-- Output 错误如何发现？
-- 什么才算有价值的 Output？
-- Human 是否需要在 Output 上继续执行 Action？
-- Human Action 是否需要重新进入 Workflow？
-
----
-
-## Output Table
-
-| Output | Type | User | Format | Destination |
-|---|---|---|---|---|
-| | | | | |
-
----
-
-# 7. Human-in-the-loop
-
-> 哪些步骤必须保留人工参与？
-
-Human-in-the-loop 不代表让人工承担 AI 或系统本可完成的所有工作。
-
-理想状态是：
-
-```text
-System / AI
-↓
-Prepare Information
-↓
-Human
-↓
-High-value Decision
-↓
-Feedback to System
-```
-
----
-
-## Questions
-
-- 哪些 Decision 风险较高？
-- 哪些结果必须人工确认？
-- 哪些 AI 工作无需逐条人工重做？
-- AI Confidence 低于多少需要人工介入？
-- 人工可以修改 AI 结果吗？
-- 人工可以 Override 系统判断吗？
-- 人工反馈是否重新进入系统？
-- Human Decision 是否应该作为历史数据保存？
-- 最终责任人是谁？
-- Human 是否必须进入 Backend，还是可以通过业务交互层操作？
-
----
-
-## Human Review Points
-
-| Step | Why Human Review Is Needed | Reviewer | Action |
-|---|---|---|---|
-| | | | |
-
----
-
-# 8. Error Handling
-
-> Workflow 出错以后怎么办？
-
-## Common Errors
-
-- Trigger Failure
-- Missing Input
-- Invalid Data
-- Duplicate Data
-- API Failure
-- Authentication Failure
-- Timeout
-- Rate Limit
-- AI Invalid Output
-- AI Low Confidence
-- Database Failure
-- Duplicate Execution
-- Partial Workflow Failure
-
----
-
-## Error Handling Questions
-
-- 是否 Retry？
-- Retry 几次？
-- Retry 间隔多久？
-- 是否需要备用方案？
-- 是否需要人工介入？
-- 是否发送 Error Notification？
-- 是否记录错误原因？
-- Workflow 从哪里恢复？
-- 是否需要 Dead Letter / Failed Queue？
-- Error 是否会导致重复 Action？
-- 是否能够安全 Resume？
-
----
-
-# 9. Logging & Monitoring
-
-> 如何知道 Workflow 是否正常运行？
-
-## Suggested Logs
-
-- Workflow Run ID
-- Start Time
-- End Time
-- Status
-- Input Source
-- Number of Records
-- Process Result
-- Decision Result
-- Action Result
-- Error
-- Retry Count
-- API Usage
-- AI Usage
-- Cost
-
----
-
-## Questions
-
-- 如何知道 Workflow 正常运行？
-- 如何知道今天少处理了数据？
-- 如何定位失败步骤？
-- 如何追踪某个 Output 的来源？
-- 是否需要 Dashboard？
-- 是否需要 Alert？
-- Scheduled Workflow 没有运行时如何发现？
-- Human Decision 是否可以追踪？
-- AI Output 是否可以追溯到对应 Input？
-
----
-
-# 10. Security & Privacy
-
-## Check
-
-- API Key
-- OAuth Token
-- Password
-- Personal Data
-- Confidential Business Data
-- Access Control
-- Environment Variables
-- Data Storage
-- Data Retention
-
----
-
-## Questions
-
-- 哪些数据属于敏感数据？
-- 谁可以访问？
-- API Key 保存在哪里？
-- 是否应该使用 `.env`？
-- 是否需要加密？
-- 数据需要保存多久？
-- 是否应该删除某些 Raw Data？
-- 第三方服务能访问哪些数据？
-
----
-
-# 11. Cost
-
-## Cost Sources
-
-- LLM API
-- SaaS Subscription
 - Automation Platform
+- Python
 - Database
-- Hosting
-- Third-party API
+- Cloud Runtime
+- LLM API
+- Structured Output
+- Embedding
+- Vector DB
+- RAG
+- Tool Calling
+- Logging
+- Monitoring
+- Docker
+- Deployment
 
 ---
 
-## Questions
+## 7.1 Technology Selection Questions
 
-- 每次 Workflow Run 成本是多少？
-- 每天运行多少次？
-- 每月预计成本是多少？
-- 哪些步骤最贵？
-- 是否所有数据都需要调用 LLM？
-- 是否可以先 Rule Filter，再调用 AI？
-- 是否可以 Progressive Enrichment？
-- 是否可以 Batch Processing？
-- 是否需要设置 Cost Limit？
+每个技术都问：
 
----
-
-# 12. Performance & Scalability
-
-## Check
-
-- Execution Time
-- Data Volume
-- API Rate Limit
-- Concurrency
-- Queue
-- Batch Processing
-- Timeout
+1. What requirement does it solve?
+2. Is it genuinely needed?
+3. Simpler alternative?
+4. Cost?
+5. Reliability?
+6. Maintenance?
+7. Data security?
+8. Deployment?
+9. Scalability?
+10. Can it run independently of developer computer?
 
 ---
 
-## Questions
+# 8. Product Design Integration
 
-- 一次处理多少数据？
-- 每天处理多少数据？
-- Workflow 最长允许运行多久？
-- 数据增加 10 倍还能运行吗？
-- 哪些步骤可能成为 Bottleneck？
-- 是否需要 Batch？
-- 是否需要 Queue？
-- 是否存在 API Rate Limit？
-- Always-on 环境是否能够支持所需运行频率？
+Workflow 设计不是纯技术流程。
 
----
-
-# 13. Business Outcome
-
-> Automation 最终解决了什么业务问题？
-
-不要只评价：
-
-> Workflow 是否运行成功。
-
-应该评价业务结果。
-
-## Time Saved
-
-Before：
-
-After：
-
-## Accuracy
-
-Before：
-
-After：
-
-## Manual Work Reduction
-
-Before：
-
-After：
-
-## Error Reduction
-
-Before：
-
-After：
-
-## Business Impact
-
-- Revenue：
-- Conversion：
-- Response Time：
-- Productivity：
-- Risk Reduction：
-
----
-
-# 14. Technology Mapping
-
-> 完成业务分析以后，最后才选择技术。
-
-| Requirement | Possible Technology | Why |
-|---|---|---|
-| Trigger | | |
-| Data Collection | | |
-| Workflow | | |
-| AI | | |
-| API Integration | | |
-| Database | | |
-| Human Interaction | | |
-| Notification / Delivery | | |
-| Deployment | | |
-| Monitoring | | |
-
-Technology Mapping 时应额外考虑：
+推荐逐步映射：
 
 ```text
-Local Development
-≠
-Production Runtime
+Business Problem
+↓
+Stakeholder / User
+↓
+Product Goal
+↓
+Workflow
+↓
+Business Rules
+↓
+User Story
+↓
+Acceptance Criteria
+↓
+PRD
+↓
+Prototype if useful
+↓
+Technical Requirements
+↓
+Implementation
+↓
+Evaluation
 ```
 
-如果业务要求 Workflow 持续自动运行：
+---
 
-> Production Runtime must not depend on the user's personal computer remaining online.
+# 9. Evaluation
 
-具体采用：
+完成 Implementation 后，不只测：
 
-- Managed Cloud
-- Cloud Automation Platform
-- Self-hosted Server
-- Container
-- Other Hosting
+```text
+Does it run?
+```
 
-应根据真实 Requirement、Cost、Reliability 和 Maintenance 再决定。
+还要测：
 
-核心原则：
+```text
+Does it work well?
+```
 
-> Business Requirement First, Technology Second.
+包括：
+
+- Functional Testing
+- Data Quality
+- AI Quality
+- Human Acceptance
+- Error Handling
+- Business Metrics
+- Cost
+- Reliability
+- Latency
 
 ---
 
-# 15. Final Workflow Architecture
+# 10. Workflow Analysis Master Checklist
 
-完成前面的业务分析后，再设计最终技术架构。
+## Business
+
+- [ ] As-Is understood
+- [ ] Pain Points identified
+- [ ] Root Causes identified
+- [ ] Boundary defined
+- [ ] Goal defined
+- [ ] Metrics defined
+
+## Trigger
+
+- [ ] Trigger identified
+- [ ] Dependency separated
+- [ ] Preconditions defined
+- [ ] Execution Rules defined
+- [ ] Signal not confused with Decision
+- [ ] Failure / Skip handling considered
+
+## Input
+
+- [ ] Sources defined
+- [ ] Fields defined
+- [ ] Required / Optional / Conditional defined
+- [ ] Empty / Missing / Not Required / Unavailable separated
+- [ ] Types defined
+- [ ] Normalization defined
+- [ ] Validation defined
+- [ ] Data Quality defined
+- [ ] Freshness considered
+- [ ] Historical data considered
+- [ ] Raw / Derived separated
+- [ ] Relationships preserved
+- [ ] Progressive enrichment considered
+- [ ] Entity / Event / State / Decision separated
+- [ ] Historical Decisions preserved
+- [ ] Shared Objects identified
+- [ ] Data Contracts reviewed
+- [ ] Cross-workflow Review completed
+
+## Process
+
+- [ ] Boundary defined
+- [ ] Sequence defined
+- [ ] Loops defined
+- [ ] External calls identified
+- [ ] Persistence defined
+- [ ] Idempotency considered
+- [ ] Failure paths considered
+- [ ] Observability considered
+
+## Decision
+
+- [ ] Signals identified
+- [ ] Rules separated from Process
+- [ ] Evidence sufficiency considered
+- [ ] AI vs Human ownership clear
+- [ ] Re-evaluation considered
+
+## Action
+
+- [ ] Actions explicit
+- [ ] State changes explicit
+- [ ] Human interactions explicit
+
+## Output
+
+- [ ] Consumers known
+- [ ] Output contract defined
+- [ ] Evidence / traceability included
+- [ ] Product presentation considered
+
+## Technology
+
+- [ ] Technology solves real requirement
+- [ ] Simpler options considered
+- [ ] Cost considered
+- [ ] Deployment considered
+- [ ] Reliability considered
+- [ ] Local-computer dependency considered
+
+---
+
+# Final Design Principle
+
+A mature Automation / AI Workflow should be understandable as:
 
 ```text
+Business Problem
+↓
 Trigger
-   ↓
+↓
 Input
-   ↓
-Normalize
-   ↓
-Validate
-   ↓
+↓
 Process
-   ↓
+↓
+Signal / Evidence
+↓
 Decision
- ┌─────┼─────┐
-Rule   AI   Human
- └─────┼─────┘
-       ↓
-     Action
-       ↓
- Human Review
-       ↓
-     Output
-       ↓
-Business Outcome
+↓
+Action
+↓
+Output
+↓
+Evaluation
+↓
+Feedback / Iteration
 ```
 
----
+同时在整个系统层面持续检查：
 
-# 16. Project Summary
+```text
+Entities
++
+Events
++
+States
++
+Decisions
++
+Relationships
++
+History
++
+Data Contracts
+```
 
-## Business Problem
+最终目标不是：
 
-TODO
+> Build a complicated automation.
 
-## Current Workflow
+而是：
 
-TODO
-
-## Pain Points
-
-TODO
-
-## Proposed Solution
-
-TODO
-
-## Main Workflow
-
-TODO
-
-## AI Responsibilities
-
-TODO
-
-## Rule-based Responsibilities
-
-TODO
-
-## Human Responsibilities
-
-TODO
-
-## Main Risks
-
-TODO
-
-## Success Metrics
-
-TODO
+> Build a reliable system that solves a real business problem and can be understood, evaluated, maintained and improved.
