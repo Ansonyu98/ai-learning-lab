@@ -526,6 +526,8 @@ To-Be Workflow
 
 Technology Selection 应发生在 Business Problem 和 Workflow Analysis 之后。
 
+---
+
 # 1. Trigger
 
 > 什么情况下 Workflow 开始运行？
@@ -662,9 +664,9 @@ Examples:
 Schedule Trigger
 Sunday 10:00
 ↓
-Check Priority Post Pool
+Check Data Pool
 ↓
-Pool contains records?
+Pool contains valid records?
 ↓
 Yes → Continue
 No → Skip
@@ -672,11 +674,13 @@ No → Skip
 
 其中：
 
+```text
 Sunday 10:00
 → Trigger
 
-Priority Post Pool contains records
+Pool contains records
 → Precondition
+```
 
 需要检查：
 
@@ -699,7 +703,7 @@ Examples:
 - 每次最多处理 4 个关键词
 - 每批最多处理 100 条记录
 - 只处理 Status = Active 的数据
-- Engagement > 500 才进入 Priority Pool
+- 只处理达到最低数据完整度要求的记录
 
 需要检查：
 
@@ -752,7 +756,7 @@ Every Sunday at 10:00
 Example:
 
 ```text
-Analyzed Post Library
+Analyzed Data Pool
 ```
 
 ### Precondition
@@ -762,7 +766,7 @@ Analyzed Post Library
 Example:
 
 ```text
-Analyzed Post Library contains valid records
+Analyzed Data Pool contains valid records
 ```
 
 ### Decision
@@ -772,11 +776,36 @@ Analyzed Post Library contains valid records
 Example:
 
 ```text
-Engagement > 500?
+Business Value Sufficient?
 ↓
-Yes → Priority Post
-No → Normal Post
+Yes → Continue
+No → Exclude
 ```
+
+### Signal vs Decision
+
+A metric, score, threshold or AI output may provide evidence for a Decision without becoming the Decision itself.
+
+Example:
+
+```text
+Metric > Threshold
+→ Signal / Evidence
+```
+
+does not automatically mean:
+
+```text
+Metric > Threshold
+→ Final Business Decision
+```
+
+A threshold should become a Decision Rule only when the business requirement explicitly defines it as one.
+
+Core principle:
+
+> Data Signal supports judgment.  
+> Business Rule determines whether the signal controls an action.
 
 ### Execution Rule
 
@@ -785,7 +814,7 @@ No → Normal Post
 Example:
 
 ```text
-Maximum 4 seed keywords per run
+Maximum 4 items per run
 ```
 
 ---
@@ -846,6 +875,7 @@ For every workflow, ask:
 10. Does the workflow need Retry or Recovery?
 11. Could duplicate execution occur?
 12. Does the workflow need Manual Override?
+13. Is a Threshold a real Decision Rule or only a Signal?
 
 ---
 
@@ -855,6 +885,8 @@ For every workflow, ask:
 > Trigger determines when the workflow starts.
 
 Do not treat every condition as a Trigger.
+
+Do not treat every Signal as a Decision.
 
 A mature workflow should clearly separate:
 
@@ -1050,6 +1082,7 @@ Business Object
 ```text
 Required / Non-null
 Required / Empty Allowed
+Conditional Required
 Optional
 ```
 
@@ -1061,18 +1094,62 @@ Optional
 
 字段必须存在，但业务上允许没有内容。
 
+### Conditional Required
+
+字段只有在某个明确业务条件成立时才必须存在。
+
+Example:
+
+```text
+Deep Analysis Required = True
+↓
+Deep Analysis Input = Required
+```
+
+或者：
+
+```text
+Comment Analysis Required = True
+↓
+Comment Data = Required
+```
+
+当条件不成立时：
+
+```text
+Not Required
+```
+
+而不是：
+
+```text
+Missing
+```
+
+核心区别：
+
+```text
+Not Required
+≠
+Missing
+```
+
 ### Optional
 
 字段缺失也不会影响 Workflow 正常运行。
 
 ---
 
-## 2.5 Empty vs Missing
+## 2.5 Empty vs Missing vs Not Required
 
 必须区分：
 
 ```text
-Empty ≠ Missing
+Empty
+≠
+Missing
+≠
+Not Required
 ```
 
 ### Empty
@@ -1097,9 +1174,21 @@ tags = null
 
 如果数据本来存在但采集失败，则属于 Data Quality Issue。
 
+### Not Required
+
+当前 Workflow 或当前业务分支根本不需要该数据。
+
+例如：
+
+```text
+Deep Analysis Required = False
+↓
+Deep Analysis Data = Not Required
+```
+
 因此：
 
-> 字段没有内容，不一定代表采集失败。
+> 没有数据，不一定代表采集失败。
 
 ---
 
@@ -1166,7 +1255,7 @@ Process:
 Filter Data by Time Range
 
 Decision:
-Score > Threshold?
+Business Rule satisfied?
 ```
 
 不要把 Configuration、Process 或 Decision Rule 混进 Input 定义。
@@ -1315,6 +1404,7 @@ Incomplete
 Missing
 Invalid
 Unavailable
+Not Required
 ```
 
 ### Valid
@@ -1350,6 +1440,14 @@ Examples:
 - Access Restricted
 - No Longer Exists
 
+### Not Required
+
+当前 Workflow 或当前业务分支不需要该数据。
+
+原则：
+
+> Not Required 不是错误状态。
+
 ---
 
 ## 2.11 Missing / Invalid Handling
@@ -1371,6 +1469,9 @@ Missing / Incomplete / Invalid
             ↓
 ├── Source 本身没有数据
 │   → Valid Empty
+│
+├── Current Branch does not require data
+│   → Not Required
 │
 ├── Temporary Error
 │   → Retry
@@ -1722,7 +1823,11 @@ Data Type:
 Requirement:
 - Required / Non-null
 - Required / Empty Allowed
+- Conditional Required
 - Optional
+
+Condition:
+- If applicable
 
 Normalization:
 
@@ -1755,22 +1860,24 @@ For every workflow, ask:
 2. 每个 Input 来自哪里？
 3. 需要哪些具体 Fields？
 4. 哪些 Required？哪些 Optional？
-5. Empty 是否允许？
-6. 每个 Field 的 Data Type 是什么？
-7. Raw Data 是否需要 Normalization？
-8. Normalized Data 应满足什么 Validation？
-9. 数据是否完整？
-10. Missing / Invalid / Incomplete 时怎么办？
-11. 是否需要 Retry？
-12. 是否需要记录 Failure Reason？
-13. 数据是否存在 Freshness 要求？
-14. Datetime 是否需要考虑 Timezone？
-15. 是否需要 Current State 还是 Historical Data？
-16. 哪些是 Raw Data？哪些是 Derived Data？
-17. Business Objects 之间是否存在 Relationship？
-18. Deduplication 是否会导致 Relationship 丢失？
-19. 是否可以通过 Progressive Data Enrichment 降低成本？
-20. 是否已经形成清晰的 Input Specification？
+5. 是否存在 Conditional Required？
+6. Empty 是否允许？
+7. Not Required 是否与 Missing 区分？
+8. 每个 Field 的 Data Type 是什么？
+9. Raw Data 是否需要 Normalization？
+10. Normalized Data 应满足什么 Validation？
+11. 数据是否完整？
+12. Missing / Invalid / Incomplete 时怎么办？
+13. 是否需要 Retry？
+14. 是否需要记录 Failure Reason？
+15. 数据是否存在 Freshness 要求？
+16. Datetime 是否需要考虑 Timezone？
+17. 是否需要 Current State 还是 Historical Data？
+18. 哪些是 Raw Data？哪些是 Derived Data？
+19. Business Objects 之间是否存在 Relationship？
+20. Deduplication 是否会导致 Relationship 丢失？
+21. 是否可以通过 Progressive Data Enrichment 降低成本？
+22. 是否已经形成清晰的 Input Specification？
 
 ---
 
@@ -1790,6 +1897,8 @@ From Where?
 What Fields?
 ↓
 What Data Type?
+↓
+Required Under What Condition?
 ↓
 Normalize?
 ↓
@@ -1828,6 +1937,8 @@ Traceable History
 Preserved Relationships
 ```
 
+---
+
 # 3. Process
 
 > Input 进入系统后，需要经历哪些处理？
@@ -1838,21 +1949,21 @@ Preserved Relationships
 
 采集数据。
 
+### Normalize
+
+统一不同 Source 的数据格式。
+
 ### Validate
 
-检查数据是否完整、合法。
+检查标准化后的数据是否完整、合法、可用。
 
 ### Clean
 
-清理错误、无效数据。
-
-### Normalize
-
-统一数据格式。
+处理无效、异常或不需要的数据。
 
 ### Deduplicate
 
-删除重复数据。
+避免重复创建 Business Object。
 
 ### Transform
 
@@ -1874,12 +1985,14 @@ Preserved Relationships
 
 保存结果。
 
+---
+
 ## Process Questions
 
 - 数据首先需要做什么？
-- 是否需要 Validate？
-- 是否需要 Clean？
 - 是否需要 Normalize？
+- 哪些 Validation 依赖 Normalize 后的数据？
+- 是否需要 Clean？
 - 如何 Deduplicate？
 - 是否需要 Transform？
 - 是否需要计算新的字段？
@@ -1889,23 +2002,28 @@ Preserved Relationships
 - 是否需要保存中间结果？
 - Process 是否存在顺序依赖？
 - 每一步失败怎么办？
+- 是否存在 Loop / Batch？
+- 是否需要 Idempotency？
+- 是否需要保存 Workflow State？
+
+---
 
 ## Generic Process Flow
+
+推荐概念顺序：
 
 ```text
 Raw Input
 ↓
-Collect
+Collect / Read
+↓
+Normalize / Transform
 ↓
 Validate
 ↓
-Clean
-↓
-Normalize
+Clean / Filter
 ↓
 Deduplicate
-↓
-Transform
 ↓
 Enrich
 ↓
@@ -1915,6 +2033,30 @@ Aggregate
 ↓
 Store
 ```
+
+注意：
+
+> Exact Process order may vary by workflow.
+
+但如果 Validation 依赖统一后的数值、时间、Enum 或格式：
+
+```text
+Normalize
+↓
+Validate
+```
+
+通常比：
+
+```text
+Validate
+↓
+Normalize
+```
+
+更合理。
+
+---
 
 ## Actual Project Process
 
@@ -1932,6 +2074,8 @@ TODO
 
 **这个判断应该由 Rule、AI、Hybrid，还是 Human 完成？**
 
+---
+
 ## Decision Types
 
 ### Rule-based Decision
@@ -1944,8 +2088,15 @@ Examples:
 score > 80
 price < 100
 status == "active"
-interaction > 500
 ```
+
+注意：
+
+> Threshold 存在，并不代表 Threshold 一定就是最终 Business Decision。
+
+首先确认 Business Requirement。
+
+---
 
 ### AI-based Decision
 
@@ -1958,6 +2109,8 @@ Examples:
 - 两篇内容是否讨论同一个问题？
 - 这条内容与业务是否相关？
 
+---
+
 ### Hybrid Decision
 
 Rule + AI 共同判断。
@@ -1969,8 +2122,10 @@ Rule Filter
 ↓
 AI Analysis
 ↓
-Final Score
+Business Decision
 ```
+
+---
 
 ### Human Decision
 
@@ -1983,18 +2138,68 @@ Examples:
 - 是否接受 AI 建议
 - 是否涉及业务风险
 
+---
+
+## Signal vs Decision
+
+Decision Analysis 需要明确区分：
+
+```text
+Signal
+```
+
+与：
+
+```text
+Decision
+```
+
+例如：
+
+```text
+High Score
+High Engagement
+High Confidence
+Rapid Growth
+```
+
+都可能只是：
+
+```text
+Evidence / Signal
+```
+
+只有当真实 Business Rule 明确规定：
+
+```text
+Signal
+↓
+Automatically Controls Action
+```
+
+它才成为 Rule-based Decision。
+
+核心原则：
+
+> Do not turn every metric into a business rule.
+
+---
+
 ## Decision Questions
 
 - 要判断什么？
 - 判断依据是什么？
 - Rule / AI / Hybrid / Human？
 - 是否存在明确 Threshold？
+- Threshold 是 Signal 还是 Business Rule？
 - AI 是否需要输出 Confidence？
 - Confidence 太低怎么办？
 - 是否存在 Edge Case？
 - 是否允许人工 Override？
 - 是否需要记录判断理由？
 - 判断错误会产生什么后果？
+
+---
 
 ## Decision Table
 
@@ -2049,6 +2254,8 @@ Examples:
 - Reject
 - Escalate
 
+---
+
 ## Action Questions
 
 - 谁执行 Action？
@@ -2064,6 +2271,8 @@ Examples:
 - 是否需要 Rollback？
 - 是否需要通知人工？
 - 是否需要记录 Action Log？
+
+---
 
 ## Action Table
 
@@ -2123,6 +2332,8 @@ Examples:
 - Execution Time
 - API Usage
 
+---
+
 ## Output Questions
 
 - 谁使用这个 Output？
@@ -2137,6 +2348,10 @@ Examples:
 - 是否需要 Evidence？
 - Output 错误如何发现？
 - 什么才算有价值的 Output？
+- Human 是否需要在 Output 上继续执行 Action？
+- Human Action 是否需要重新进入 Workflow？
+
+---
 
 ## Output Table
 
@@ -2150,15 +2365,38 @@ Examples:
 
 > 哪些步骤必须保留人工参与？
 
+Human-in-the-loop 不代表让人工承担 AI 或系统本可完成的所有工作。
+
+理想状态是：
+
+```text
+System / AI
+↓
+Prepare Information
+↓
+Human
+↓
+High-value Decision
+↓
+Feedback to System
+```
+
+---
+
 ## Questions
 
 - 哪些 Decision 风险较高？
 - 哪些结果必须人工确认？
+- 哪些 AI 工作无需逐条人工重做？
 - AI Confidence 低于多少需要人工介入？
 - 人工可以修改 AI 结果吗？
 - 人工可以 Override 系统判断吗？
 - 人工反馈是否重新进入系统？
+- Human Decision 是否应该作为历史数据保存？
 - 最终责任人是谁？
+- Human 是否必须进入 Backend，还是可以通过业务交互层操作？
+
+---
 
 ## Human Review Points
 
@@ -2188,6 +2426,8 @@ Examples:
 - Duplicate Execution
 - Partial Workflow Failure
 
+---
+
 ## Error Handling Questions
 
 - 是否 Retry？
@@ -2199,6 +2439,8 @@ Examples:
 - 是否记录错误原因？
 - Workflow 从哪里恢复？
 - 是否需要 Dead Letter / Failed Queue？
+- Error 是否会导致重复 Action？
+- 是否能够安全 Resume？
 
 ---
 
@@ -2223,6 +2465,8 @@ Examples:
 - AI Usage
 - Cost
 
+---
+
 ## Questions
 
 - 如何知道 Workflow 正常运行？
@@ -2231,6 +2475,9 @@ Examples:
 - 如何追踪某个 Output 的来源？
 - 是否需要 Dashboard？
 - 是否需要 Alert？
+- Scheduled Workflow 没有运行时如何发现？
+- Human Decision 是否可以追踪？
+- AI Output 是否可以追溯到对应 Input？
 
 ---
 
@@ -2247,6 +2494,8 @@ Examples:
 - Environment Variables
 - Data Storage
 - Data Retention
+
+---
 
 ## Questions
 
@@ -2272,6 +2521,8 @@ Examples:
 - Hosting
 - Third-party API
 
+---
+
 ## Questions
 
 - 每次 Workflow Run 成本是多少？
@@ -2280,6 +2531,7 @@ Examples:
 - 哪些步骤最贵？
 - 是否所有数据都需要调用 LLM？
 - 是否可以先 Rule Filter，再调用 AI？
+- 是否可以 Progressive Enrichment？
 - 是否可以 Batch Processing？
 - 是否需要设置 Cost Limit？
 
@@ -2297,6 +2549,8 @@ Examples:
 - Batch Processing
 - Timeout
 
+---
+
 ## Questions
 
 - 一次处理多少数据？
@@ -2307,6 +2561,7 @@ Examples:
 - 是否需要 Batch？
 - 是否需要 Queue？
 - 是否存在 API Rate Limit？
+- Always-on 环境是否能够支持所需运行频率？
 
 ---
 
@@ -2366,9 +2621,32 @@ After：
 | AI | | |
 | API Integration | | |
 | Database | | |
-| Notification | | |
+| Human Interaction | | |
+| Notification / Delivery | | |
 | Deployment | | |
 | Monitoring | | |
+
+Technology Mapping 时应额外考虑：
+
+```text
+Local Development
+≠
+Production Runtime
+```
+
+如果业务要求 Workflow 持续自动运行：
+
+> Production Runtime must not depend on the user's personal computer remaining online.
+
+具体采用：
+
+- Managed Cloud
+- Cloud Automation Platform
+- Self-hosted Server
+- Container
+- Other Hosting
+
+应根据真实 Requirement、Cost、Reliability 和 Maintenance 再决定。
 
 核心原则：
 
@@ -2384,6 +2662,8 @@ After：
 Trigger
    ↓
 Input
+   ↓
+Normalize
    ↓
 Validate
    ↓
